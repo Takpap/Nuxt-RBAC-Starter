@@ -110,9 +110,7 @@ export default defineEventHandler(async (event: H3Event) => {
       const action = parts.length >= 3 ? parts[2] : getActionFromMethod(event.method);
       
       // Check if user has permission
-      console.log('session',session);
-      console.log('resource',resource);
-      console.log('action',action);
+      console.log('session',session, 'resource', resource, 'action', action);
       const hasAccess = await hasPermission(session.userId, resource, action);
       
       if (!hasAccess) {

@@ -32,6 +32,9 @@ importers:
       better-sqlite3:
         specifier: ^11.9.1
         version: 11.9.1
+      dayjs:
+        specifier: ^1.11.13
+        version: 1.11.13
       dayjs-nuxt:
         specifier: 2.1.11
         version: 2.1.11(magicast@0.3.5)

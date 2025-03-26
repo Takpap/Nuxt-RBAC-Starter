@@ -19,6 +19,7 @@ async function main() {
     { name: 'update-user', description: 'Update user', resource: 'users', action: 'update' },
     { name: 'delete-user', description: 'Delete user', resource: 'users', action: 'delete' },
     { name: 'count-user', description: 'Count user', resource: 'users', action: 'count' },
+    { name: 'me', description: 'Me', resource: 'users', action: 'me' },
     
     // Role permissions
     { name: 'view-roles', description: 'View roles', resource: 'roles', action: 'read' },
