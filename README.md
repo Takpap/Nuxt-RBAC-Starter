@@ -126,7 +126,9 @@ pnpm preview
 │   ├── login.vue            # 登录页面
 │   └── register.vue         # 注册页面
 ├── layouts/                 # 布局组件
-│   └── default.vue          # 默认布局
+│   ├── default.vue          # 默认布局
+│   ├── admin.vue            # 管理员布局，带侧边栏
+│   └── home.vue             # 首页布局，带营销页脚
 ├── middleware/              # 客户端中间件
 │   ├── auth.ts              # 认证中间件
 │   └── guest.ts             # 访客中间件
@@ -218,3 +220,10 @@ pnpm preview
 ## 许可证
 
 [MIT](LICENSE)
+
+管理后台支持侧边栏折叠功能，提供更大的内容显示空间：
+
+- 支持菜单栏折叠/展开切换
+- 显示图标化菜单
+- 自动保存用户的折叠状态偏好
+- 顶部导航栏的快捷折叠按钮

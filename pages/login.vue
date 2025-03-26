@@ -54,8 +54,8 @@
 
 <script setup lang="ts">
 definePageMeta({
-  layout: false,
-  middleware: ['guest']
+  middleware: ['guest'],
+  layout: 'default'
 })
 
 const { login, checkAuth } = useAuth()

@@ -58,7 +58,7 @@
 
 <script setup lang="ts">
 definePageMeta({
-  layout: false
+  layout: 'home'
 })
 
 // 如果已经登录，直接跳转到仪表盘

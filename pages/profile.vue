@@ -121,7 +121,8 @@
 
 <script setup lang="ts">
 definePageMeta({
-  middleware: ['auth']
+  middleware: ['auth'],
+  layout: 'admin'
 })
 
 const { user, checkAuth } = useAuth()

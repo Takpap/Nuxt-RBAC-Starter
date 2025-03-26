@@ -175,6 +175,7 @@ import type { FormItemRule } from 'element-plus'
 
 definePageMeta({
   middleware: ['auth'],
+  layout: 'admin'
 })
 
 interface User {

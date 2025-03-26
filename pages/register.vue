@@ -68,8 +68,8 @@
 import type { FormItemRule } from 'element-plus'
 
 definePageMeta({
-  layout: false,
-  middleware: ['guest']
+  middleware: ['guest'],
+  layout: 'default'
 })
 
 const { register, login } = useAuth()

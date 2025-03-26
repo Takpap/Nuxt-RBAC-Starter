@@ -13,7 +13,7 @@
 
 <script setup lang="ts">
 definePageMeta({
-  layout: false
+  layout: 'default'
 })
 
 function goHome() {
