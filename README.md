@@ -10,6 +10,8 @@
 - 角色管理
 - 权限管理
 - API权限验证中间件
+- 现代化UI设计与动画效果
+- 图标库展示和管理
 
 ## 技术栈
 
@@ -19,6 +21,19 @@
 - [Tailwind CSS](https://tailwindcss.com/) - CSS框架
 - [SQLite](https://www.sqlite.org/) - 数据库（开发环境）
 - [JWT](https://jwt.io/) - JSON Web Token认证
+- [@nuxt/icon](https://nuxt.com/modules/icon) - 图标管理，支持200,000+图标
+- [Iconify](https://iconify.design/) - 开源图标集合
+- [DayJS](https://day.js.org/) - 轻量级日期处理库
+
+## 界面预览
+
+系统提供了美观的现代化UI设计：
+
+- 响应式布局，适配移动设备和桌面端
+- 动态卡片和悬停效果
+- 清晰的数据可视化
+- 丰富的图标库和自定义图标支持
+- 优化的表单和表格设计
 
 ## 系统架构
 
@@ -36,6 +51,7 @@
 - **/api/users**: 用户管理接口
 - **/api/roles**: 角色管理接口
 - **/api/permissions**: 权限管理接口
+- **/api/sessions**: 会话管理接口
 
 ## 快速开始
 
@@ -88,14 +104,55 @@ pnpm preview
 │   │   ├── auth/            # 认证相关API
 │   │   ├── users/           # 用户管理API
 │   │   ├── roles/           # 角色管理API
-│   │   └── permissions/     # 权限管理API
+│   │   ├── permissions/     # 权限管理API
+│   │   └── sessions/        # 会话管理API
 │   ├── middleware/          # 中间件
 │   │   └── auth.ts          # 认证和权限验证中间件
 │   └── utils/               # 工具函数
+├── components/              # 共享组件
+│   └── ui/                  # UI组件
+│       └── IconsDisplay.vue # 图标展示组件
+├── pages/                   # 页面组件
+│   ├── dashboard.vue        # 控制台页面
+│   ├── users.vue            # 用户管理页面
+│   ├── roles.vue            # 角色管理页面
+│   ├── permissions.vue      # 权限管理页面
+│   ├── profile.vue          # 个人资料页面
+│   ├── icons.vue            # 图标库页面
+│   ├── login.vue            # 登录页面
+│   └── register.vue         # 注册页面
+├── layouts/                 # 布局组件
+│   └── default.vue          # 默认布局
+├── middleware/              # 客户端中间件
+│   ├── auth.ts              # 认证中间件
+│   └── guest.ts             # 访客中间件
+├── composables/             # 可组合函数
+│   └── useAuth.ts           # 认证相关函数
 ├── app.vue                  # 应用入口组件
 ├── nuxt.config.ts           # Nuxt配置
 └── package.json             # 项目依赖
 ```
+
+## 图标库特性
+
+本项目集成了 @nuxt/icon 模块，提供以下功能：
+
+- 访问超过 200,000 个开源图标
+- 图标分类展示和管理
+- 便捷的图标搜索和预览
+- 一键复制图标名称
+- 自定义图标预览
+
+使用方法非常简单：
+
+```vue
+<Icon name="i-ph-user-duotone" />
+```
+
+其中 `i-ph-user-duotone` 为图标名称，格式为 `i-[集合名称]-[图标名称]`，例如：
+- `i-ph-user-duotone`: Phosphor Icons 的 user 图标（双色版本）
+- `i-mdi-home`: Material Design Icons 的 home 图标
+- `i-tabler-settings`: Tabler Icons 的 settings 图标
 
 ## 权限系统设计
 
