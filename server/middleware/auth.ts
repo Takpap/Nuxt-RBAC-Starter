@@ -60,7 +60,7 @@ export default defineEventHandler(async (event: H3Event) => {
   // Skip auth for some public routes
   const url = event.path || '';
 
-  if (!url.startsWith('/api')) {
+  if (!url.startsWith('/api') || url.includes('_nuxt_icon')) {
     return;
   }
   

@@ -7,5 +7,11 @@ export default defineNuxtConfig({
     '@element-plus/nuxt',
     '@nuxtjs/tailwindcss',
     'dayjs-nuxt'
-  ]
+  ],
+
+  icon: {
+    serverBundle: {
+      remote: 'jsdelivr' // 'unpkg' or 'github-raw', or a custom function
+    }
+  }
 })
