@@ -1,8 +1,25 @@
 <template>
-  <NuxtLayout>
+  <div v-if="isAuthLoading" class="min-h-screen flex flex-col items-center justify-center bg-gray-50">
+    <el-icon class="loading-icon text-blue-500" :size="48"><Loading /></el-icon>
+    <div class="mt-4 text-gray-600">身份验证中...</div>
+  </div>
+  <NuxtLayout v-else>
     <NuxtPage />
   </NuxtLayout>
 </template>
+
+<script setup>
+// 添加全局认证加载状态控制
+const isAuthLoading = useState('auth_loading', () => true)
+
+// 在应用初始化时设置为加载中，身份验证检查完成后再设置为false
+onMounted(() => {
+  const { checkAuth } = useAuth()
+  checkAuth().finally(() => {
+    isAuthLoading.value = false
+  })
+})
+</script>
 
 <style>
 /* 全局样式设置 */
@@ -51,5 +68,15 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #9ca3af;
+}
+
+@keyframes loading-rotate {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-icon {
+  animation: loading-rotate 1s linear infinite;
 }
 </style>

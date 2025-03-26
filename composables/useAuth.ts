@@ -114,18 +114,22 @@ export default function useAuth() {
   }
 
   const checkAuth = async () => {
-    if (!token.value && typeof window !== 'undefined') {
-      const storedToken = localStorage.getItem('auth_token')
-      if (storedToken) {
-        token.value = storedToken
-      }
-    }
-    
-    if (!token.value) {
-      return false
-    }
+    // 获取全局认证加载状态
+    const isAuthLoading = useState('auth_loading', () => true)
     
     try {
+      if (!token.value && typeof window !== 'undefined') {
+        const storedToken = localStorage.getItem('auth_token')
+        if (storedToken) {
+          token.value = storedToken
+        }
+      }
+      
+      if (!token.value) {
+        isAuthLoading.value = false
+        return false
+      }
+      
       const { data } = await useFetch('/api/users/me', {
         headers: {
           Authorization: `Bearer ${token.value}`
@@ -134,15 +138,18 @@ export default function useAuth() {
       
       if (data.value && typeof data.value === 'object' && 'id' in data.value) {
         user.value = data.value as User
+        isAuthLoading.value = false
         return true
       }
       
       // 如果请求失败且不是因为网络原因，清除无效token
       clearAuth()
+      isAuthLoading.value = false
       return false
     } catch (err) {
       console.error('检查认证失败:', err)
       clearAuth()
+      isAuthLoading.value = false
       return false
     }
   }
