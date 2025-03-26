@@ -1,0 +1,70 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// User model
+model User {
+  id          Int       @id @default(autoincrement())
+  username    String    @unique
+  email       String    @unique
+  password    String
+  name        String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  isActive    Boolean   @default(true)
+  roleId      Int
+  role        Role      @relation(fields: [roleId], references: [id])
+  sessions    Session[]
+}
+
+// Role model
+model Role {
+  id           Int               @id @default(autoincrement())
+  name         String            @unique
+  description  String?
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  users        User[]
+  permissions  RolePermission[]
+}
+
+// Permission model
+model Permission {
+  id           Int               @id @default(autoincrement())
+  name         String            @unique
+  description  String?
+  resource     String
+  action       String
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  roles        RolePermission[]
+}
+
+// Role-Permission junction table
+model RolePermission {
+  roleId        Int
+  permissionId  Int
+  assignedAt    DateTime    @default(now())
+  role          Role        @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission    Permission  @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+}
+
+// Session model for authentication
+model Session {
+  id         String    @id @default(uuid())
+  userId     Int
+  token      String    @unique
+  expiresAt  DateTime
+  createdAt  DateTime  @default(now())
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
