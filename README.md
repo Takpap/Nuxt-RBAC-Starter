@@ -12,6 +12,7 @@
 - API权限验证中间件
 - 现代化UI设计与动画效果
 - 图标库展示和管理
+- 系统活动日志记录和查询
 
 ## 技术栈
 
@@ -52,6 +53,7 @@
 - **/api/roles**: 角色管理接口
 - **/api/permissions**: 权限管理接口
 - **/api/sessions**: 会话管理接口
+- **/api/activities**: 活动日志接口
 
 ## 快速开始
 
@@ -105,7 +107,8 @@ pnpm preview
 │   │   ├── users/           # 用户管理API
 │   │   ├── roles/           # 角色管理API
 │   │   ├── permissions/     # 权限管理API
-│   │   └── sessions/        # 会话管理API
+│   │   ├── sessions/        # 会话管理API
+│   │   └── activities/      # 活动日志API
 │   ├── middleware/          # 中间件
 │   │   └── auth.ts          # 认证和权限验证中间件
 │   └── utils/               # 工具函数
@@ -119,6 +122,7 @@ pnpm preview
 │   ├── permissions.vue      # 权限管理页面
 │   ├── profile.vue          # 个人资料页面
 │   ├── icons.vue            # 图标库页面
+│   ├── activities.vue       # 活动日志页面
 │   ├── login.vue            # 登录页面
 │   └── register.vue         # 注册页面
 ├── layouts/                 # 布局组件
@@ -153,6 +157,50 @@ pnpm preview
 - `i-ph-user-duotone`: Phosphor Icons 的 user 图标（双色版本）
 - `i-mdi-home`: Material Design Icons 的 home 图标
 - `i-tabler-settings`: Tabler Icons 的 settings 图标
+
+## 活动日志功能
+
+本系统提供完整的活动日志记录和查询功能：
+
+### 日志记录
+
+系统会自动记录以下类型的活动：
+
+- 用户登录和登出
+- 资源的创建、更新和删除（用户、角色、权限等）
+- 角色分配变更
+- 权限变更
+- 其他重要系统操作
+
+每条日志包含以下信息：
+- 操作类型（login、logout、create、update、delete、assign_role等）
+- 资源类型（user、role、permission等）
+- 资源ID
+- 详细描述
+- 操作用户信息
+- IP地址与用户代理
+- 时间戳
+
+### 日志查询
+
+系统提供强大的日志查询功能：
+
+- 按操作类型筛选
+- 按资源类型筛选
+- 按用户筛选
+- 分页和排序
+- 清晰的视觉区分（不同操作类型使用不同颜色标记）
+
+### 仪表板集成
+
+控制台仪表板显示最近的系统活动，提供系统运行状态的实时概览。
+
+### 实现技术
+
+- Prisma ORM 数据模型
+- RESTful API 接口
+- Vue 3 + Element Plus UI
+- TypeScript 类型安全
 
 ## 权限系统设计
 

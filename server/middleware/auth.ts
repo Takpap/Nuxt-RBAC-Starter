@@ -106,8 +106,9 @@ export default defineEventHandler(async (event: H3Event) => {
     const parts = url.split('/').filter(Boolean);
     
     if (parts.length >= 2) {
+      console.log('parts', parts);
       const resource = parts[1].split('?')[0];
-      const action = parts.length >= 3 ? parts[2] : getActionFromMethod(event.method);
+      const action = getActionFromMethod(event.method);
       
       // Check if user has permission
       console.log('session',session, 'resource', resource, 'action', action);

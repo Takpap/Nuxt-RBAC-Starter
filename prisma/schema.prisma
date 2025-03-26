@@ -12,17 +12,19 @@ datasource db {
 
 // User model
 model User {
-  id          Int       @id @default(autoincrement())
-  username    String    @unique
-  email       String    @unique
+  id          Int           @id @default(autoincrement())
+  username    String        @unique
+  email       String        @unique
   password    String
   name        String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  isActive    Boolean   @default(true)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  isActive    Boolean       @default(true)
   roleId      Int
-  role        Role      @relation(fields: [roleId], references: [id])
+  role        Role          @relation(fields: [roleId], references: [id])
   sessions    Session[]
+  activities  ActivityLog[] @relation("UserActivities") // 用户的活动记录
+  targetOf    ActivityLog[] @relation("TargetUser")     // 用户作为目标对象的活动记录
 }
 
 // Role model
@@ -34,6 +36,7 @@ model Role {
   updatedAt    DateTime          @updatedAt
   users        User[]
   permissions  RolePermission[]
+  activities   ActivityLog[]     // 与角色相关的活动记录
 }
 
 // Permission model
@@ -46,6 +49,7 @@ model Permission {
   createdAt    DateTime          @default(now())
   updatedAt    DateTime          @updatedAt
   roles        RolePermission[]
+  activities   ActivityLog[]     // 与权限相关的活动记录
 }
 
 // Role-Permission junction table
@@ -67,4 +71,30 @@ model Session {
   expiresAt  DateTime
   createdAt  DateTime  @default(now())
   user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// 活动日志模型
+model ActivityLog {
+  id              Int       @id @default(autoincrement())
+  action          String    // 动作类型：create, update, delete, login, logout 等
+  resourceType    String    // 资源类型：user, role, permission 等
+  resourceId      String?   // 资源ID
+  description     String    // 活动描述
+  ipAddress       String?   // IP地址
+  userAgent       String?   // 用户代理
+  createdAt       DateTime  @default(now())
+  
+  // 关联字段
+  userId          Int?      // 执行操作的用户ID
+  user            User?     @relation("UserActivities", fields: [userId], references: [id], onDelete: SetNull)
+  
+  // 可选关联字段，用于记录被操作的目标对象
+  targetUserId    Int?      // 目标用户ID
+  targetUser      User?     @relation("TargetUser", fields: [targetUserId], references: [id], onDelete: SetNull)
+  
+  roleId          Int?      // 角色ID
+  role            Role?     @relation(fields: [roleId], references: [id], onDelete: SetNull)
+  
+  permissionId    Int?      // 权限ID
+  permission      Permission? @relation(fields: [permissionId], references: [id], onDelete: SetNull)
 }

@@ -9,7 +9,7 @@
                 <Icon name="i-mdi-view-dashboard" class="mr-2 text-blue-500 text-xl" />
                 系统概览
               </h3>
-              <el-button type="primary" size="small" text class="hover:bg-blue-50 px-3 py-1 rounded-md">
+              <el-button type="primary" size="small" text class="hover:bg-blue-50 px-3 py-1 rounded-md" @click="refreshData">
                 <Icon name="i-tabler-refresh" class="mr-1" />
                 刷新
               </el-button>
@@ -78,7 +78,7 @@
                 <Icon name="i-majesticons-clock-line" class="mr-2 text-green-500 text-xl" />
                 最近活动
               </h3>
-              <el-button type="success" size="small" text class="hover:bg-green-50 px-3 py-1 rounded-md">
+              <el-button type="success" size="small" text class="hover:bg-green-50 px-3 py-1 rounded-md" @click="navigateTo('/activities')">
                 <Icon name="i-lucide-list" class="mr-1" />
                 查看全部
               </el-button>
@@ -91,19 +91,33 @@
             </template>
           </el-empty>
           
-          <el-timeline v-else>
-            <el-timeline-item
-              v-for="(activity, index) in activities"
-              :key="index"
-              :timestamp="activity.time"
-              :type="activity.type"
-            >
-              <div class="flex items-center">
-                <Icon :name="getActivityIcon(activity.type)" class="mr-2" />
-                <p class="text-gray-700 font-medium">{{ activity.content }}</p>
-              </div>
-            </el-timeline-item>
-          </el-timeline>
+          <div v-else class="overflow-hidden">
+            <el-timeline>
+              <el-timeline-item
+                v-for="activity in activities"
+                :key="activity.id"
+                :timestamp="formatDate(activity.createdAt)"
+                :type="getActivityType(activity.action)"
+              >
+                <div class="flex items-center">
+                  <Icon :name="getActivityIcon(activity.action)" class="mr-2" />
+                  <div>
+                    <p class="text-gray-700 font-medium mb-1">{{ activity.description }}</p>
+                    <div class="flex items-center text-xs text-gray-500">
+                      <span v-if="activity.user" class="mr-2">
+                        <el-tag size="small" class="mr-1" effect="plain">
+                          {{ activity.user.username }}
+                        </el-tag>
+                      </span>
+                      <span class="mr-2">{{ activity.resourceType }}</span>
+                      <Icon name="i-ph-clock-duotone" class="mr-1" />
+                      <span>{{ new Date(activity.createdAt).toLocaleString() }}</span>
+                    </div>
+                  </div>
+                </div>
+              </el-timeline-item>
+            </el-timeline>
+          </div>
         </el-card>
       </el-col>
       
@@ -198,11 +212,18 @@ const stats = reactive({
   sessions: 0
 })
 
-// 模拟活动数据
+// 活动数据接口
 interface Activity {
-  time: string
-  type: 'success' | 'warning' | 'info' | 'primary' | 'danger' | undefined
-  content: string
+  id: number
+  action: string
+  description: string
+  createdAt: string
+  resourceType: string
+  user?: {
+    id: number
+    username: string
+    name?: string
+  }
 }
 
 const activities = ref<Activity[]>([])
@@ -215,14 +236,52 @@ const systemStats = reactive({
 })
 
 // 获取活动类型对应的图标
-const getActivityIcon = (type: string | undefined) => {
-  switch(type) {
-    case 'success': return 'i-ph-check-circle-duotone'
-    case 'warning': return 'i-ph-warning-duotone'
-    case 'danger': return 'i-ph-x-circle-duotone'
-    case 'info': return 'i-ph-info-duotone'
-    case 'primary': return 'i-ph-note-duotone'
+const getActivityIcon = (action: string) => {
+  switch(action) {
+    case 'create': return 'i-ph-plus-circle-duotone'
+    case 'update': return 'i-ph-pencil-duotone'
+    case 'delete': return 'i-ph-trash-duotone'
+    case 'login': return 'i-ph-sign-in-duotone'
+    case 'logout': return 'i-ph-sign-out-duotone'
+    case 'assign_role': return 'i-ph-user-switch-duotone'
     default: return 'i-ph-circle-duotone'
+  }
+}
+
+// 获取活动类型对应的样式
+const getActivityType = (action: string): 'success' | 'warning' | 'info' | 'primary' | 'danger' | undefined => {
+  switch(action) {
+    case 'create': return 'success'
+    case 'update': return 'primary'
+    case 'delete': return 'danger'
+    case 'login': return 'info'
+    case 'logout': return 'info'
+    case 'assign_role': return 'warning'
+    default: return 'info'
+  }
+}
+
+// 格式化日期函数
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString)
+  const now = new Date()
+  const diffTime = Math.abs(now.getTime() - date.getTime())
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24))
+  
+  if (diffDays === 0) {
+    // 今天，显示时间
+    return '今天 ' + date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
+  } else if (diffDays === 1) {
+    // 昨天
+    return '昨天 ' + date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
+  } else if (diffDays < 7) {
+    // 一周内，显示星期几
+    const days = ['日', '一', '二', '三', '四', '五', '六']
+    return `星期${days[date.getDay()]} ${date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}`
+  } else {
+    // 一周前，显示完整日期
+    return date.toLocaleDateString('zh-CN', { month: '2-digit', day: '2-digit' }) + 
+           ' ' + date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
   }
 }
 
@@ -253,38 +312,36 @@ const fetchStats = async () => {
   }
 }
 
-// 模拟一些活动数据用于展示
-const generateMockActivities = () => {
-  const mockActivities: Activity[] = [
-    {
-      time: '今天 12:30',
-      type: 'success',
-      content: '用户 admin 创建了新角色 "编辑者"'
-    },
-    {
-      time: '今天 10:15',
-      type: 'info',
-      content: '用户 john.doe 更新了个人资料'
-    },
-    {
-      time: '昨天 18:45',
-      type: 'warning',
-      content: '系统检测到异常登录尝试'
-    },
-    {
-      time: '昨天 14:20',
-      type: 'primary',
-      content: '系统自动备份完成'
+// 获取最近活动
+const fetchRecentActivities = async () => {
+  try {
+    const { data } = await useFetch('/api/activities/recent', {
+      query: { limit: 5 }
+    })
+    
+    if (data.value) {
+      activities.value = data.value as Activity[]
     }
-  ]
+  } catch (err) {
+    console.error('获取最近活动失败', err)
+  }
+}
+
+// 刷新数据
+const refreshData = async () => {
+  await Promise.all([
+    fetchStats(),
+    fetchRecentActivities()
+  ])
   
-  activities.value = mockActivities
+  ElMessage.success('数据已刷新')
 }
 
 // 初始化
 onMounted(() => {
   fetchStats()
-  generateMockActivities()
+  fetchRecentActivities()
+  
   // 更新系统时间
   setInterval(() => {
     systemInfo.time = new Date().toLocaleString()

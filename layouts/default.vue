@@ -71,6 +71,11 @@
             <Icon name="i-ph-palette-duotone" class="mr-1" />
             <span>图标库</span>
           </el-menu-item>
+          
+          <el-menu-item index="/activities" class="hover:bg-blue-50">
+            <Icon name="i-ph-activity-duotone" class="mr-1" />
+            <span>活动日志</span>
+          </el-menu-item>
         </el-menu>
       </aside>
       
