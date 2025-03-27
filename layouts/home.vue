@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen flex flex-col bg-gray-50">
-    <header class="bg-white shadow-sm sticky top-0 z-10">
+    <header class="bg-white shadow-sm sticky top-0 z-10 w-full">
       <div class="container mx-auto flex justify-between items-center py-3 px-6">
         <h1 class="text-xl font-bold text-gray-800 flex items-center">
           <Icon name="i-carbon-security" class="mr-2 text-blue-600" />

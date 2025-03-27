@@ -60,6 +60,28 @@ async function main() {
     permissions.push(permission);
   }
 
+  // 添加菜单权限
+  const menuPermissionsData = [
+    { name: 'view-menus', description: '查看菜单', resource: 'menus', action: 'read' },
+    { name: 'create-menu', description: '创建菜单', resource: 'menus', action: 'create' },
+    { name: 'update-menu', description: '更新菜单', resource: 'menus', action: 'update' },
+    { name: 'delete-menu', description: '删除菜单', resource: 'menus', action: 'delete' },
+    { name: 'count-menus', description: '统计菜单', resource: 'menus', action: 'count' },
+  ];
+
+  console.log('Creating menu permissions...');
+  const menuPermissions = [];
+  
+  for (const permData of menuPermissionsData) {
+    const permission = await prisma.permission.upsert({
+      where: { name: permData.name },
+      update: {},
+      create: permData,
+    });
+    menuPermissions.push(permission);
+    permissions.push(permission);
+  }
+
   // Create roles
   console.log('Creating roles...');
   
@@ -139,6 +161,7 @@ async function main() {
       password: adminPassword,
       name: 'Administrator',
       roleId: adminRole.id,
+      
     },
   });
 
@@ -258,6 +281,146 @@ async function main() {
   }
 
   console.log('活动日志数据已创建')
+
+  // 创建默认菜单
+  console.log('Creating menus...');
+  const menusData = [
+    {
+      name: '控制台',
+      path: '/dashboard',
+      component: 'pages/dashboard/index.vue',
+      icon: 'i-tabler-dashboard',
+      sort: 1
+    },
+    {
+      name: '用户管理',
+      path: '/users',
+      component: 'pages/users/index.vue',
+      icon: 'i-ph-users-three-duotone',
+      sort: 2
+    },
+    {
+      name: '角色管理',
+      path: '/roles',
+      component: 'pages/roles/index.vue',
+      icon: 'i-tabler-id-badge-2',
+      sort: 3
+    },
+    {
+      name: '权限管理',
+      path: '/permissions',
+      component: 'pages/permissions/index.vue',
+      icon: 'i-ph-key-duotone',
+      sort: 4
+    },
+    {
+      name: '菜单管理',
+      path: '/menus',
+      component: 'pages/menus/index.vue',
+      icon: 'i-ph-list-bullets-duotone',
+      sort: 5
+    },
+    {
+      name: '活动日志',
+      path: '/activities',
+      component: 'pages/activities/index.vue',
+      icon: 'i-ph-activity-duotone',
+      sort: 6
+    },
+    {
+      name: '系统',
+      path: '/settings',
+      icon: 'i-ph-gear-six-duotone',
+      sort: 7
+    },
+    {
+      name: '个人设置',
+      path: '/settings/profile',
+      component: 'pages/settings/profile.vue',
+      icon: 'i-ph-user-gear-duotone',
+      sort: 1,
+      parentId: 7
+    },
+    {
+      name: '设置',
+      path: '/settings/system',
+      component: 'pages/settings/system.vue',
+      icon: 'i-ph-sliders-horizontal-duotone',
+      sort: 2,
+      parentId: 7
+    },
+    {
+      name: '图标库',
+      path: '/icons',
+      component: 'pages/icons/index.vue',
+      icon: 'i-ph-palette-duotone',
+      sort: 8
+    },
+  ];
+
+  // 创建菜单
+  const createdMenus = [];
+  for (const menuData of menusData) {
+    let menu;
+    if (menuData.parentId) {
+      // 如果有父级菜单，需要等父级菜单创建后再设置
+      const parentMenu = createdMenus[menuData.parentId - 1];
+      if (parentMenu) {
+        menu = await prisma.menu.create({
+          data: {
+            name: menuData.name,
+            path: menuData.path,
+            component: menuData.component,
+            icon: menuData.icon,
+            sort: menuData.sort,
+            parent: {
+              connect: { id: parentMenu.id }
+            }
+          }
+        });
+      }
+    } else {
+      menu = await prisma.menu.create({
+        data: {
+          name: menuData.name,
+          path: menuData.path,
+          component: menuData.component,
+          icon: menuData.icon,
+          sort: menuData.sort
+        }
+      });
+    }
+    
+    createdMenus.push(menu);
+  }
+
+  // 关联角色和菜单
+  console.log('Assigning menus to roles...');
+  
+  // 管理员角色关联所有菜单
+  for (const menu of createdMenus) {
+    await prisma.roleMenu.create({
+      data: {
+        roleId: adminRole.id,
+        menuId: menu.id
+      }
+    });
+  }
+  
+  // 用户角色只关联部分菜单（控制台、个人设置）
+  const userMenus = createdMenus.filter(menu => 
+    menu.path === '/dashboard' || 
+    menu.path === '/settings/profile'
+  );
+  
+  for (const menu of userMenus) {
+    await prisma.roleMenu.create({
+      data: {
+        roleId: userRole.id,
+        menuId: menu.id
+      }
+    });
+  }
 
   console.log('Seeding completed!');
 }

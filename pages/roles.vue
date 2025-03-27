@@ -66,6 +66,13 @@
               >
                 权限
               </el-button>
+              <el-button
+                type="success"
+                size="small"
+                @click="openMenuDialog(row)"
+              >
+                菜单
+              </el-button>
               <el-button 
                 v-if="row.name !== 'admin' && hasPermission('roles', 'delete')"
                 type="danger" 
@@ -151,6 +158,54 @@
         <el-button type="primary" @click="savePermissions" :loading="submitting">保存</el-button>
       </template>
     </el-dialog>
+    
+    <!-- 菜单权限对话框 -->
+    <el-dialog
+      v-model="menuDialogVisible"
+      :title="`${editingRole.name || ''} 角色菜单配置`"
+      width="700px"
+    >
+      <div v-loading="menusLoading">
+        <el-alert
+          v-if="editingRole.name === 'admin'"
+          type="info"
+          show-icon
+          :closable="false"
+          title="管理员角色默认拥有所有菜单权限"
+          class="mb-4"
+        />
+        
+        <div class="mb-4 text-right">
+          <el-button size="small" type="primary" @click="selectAllMenus">全选</el-button>
+          <el-button size="small" @click="unselectAllMenus">取消全选</el-button>
+        </div>
+        
+        <el-tree
+          ref="menuTreeRef"
+          :data="menuTree"
+          show-checkbox
+          node-key="id"
+          :default-checked-keys="selectedMenus"
+          :props="{
+            label: 'name',
+            children: 'children'
+          }"
+        >
+          <template #default="{ node, data }">
+            <div class="flex items-center">
+              <Icon v-if="data.icon" :name="data.icon" class="mr-2" />
+              <span>{{ node.label }}</span>
+              <span v-if="data.path" class="text-gray-500 text-xs ml-2">({{ data.path }})</span>
+            </div>
+          </template>
+        </el-tree>
+      </div>
+      
+      <template #footer>
+        <el-button @click="menuDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="saveMenus" :loading="submitting">保存</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -204,6 +259,13 @@ const permissionTreeRef = ref()
 const permissionTree = ref<any[]>([])
 const allPermissions = ref<Permission[]>([])
 const selectedPermissions = ref<number[]>([])
+
+// 菜单相关
+const menuDialogVisible = ref(false)
+const menusLoading = ref(false)
+const menuTreeRef = ref()
+const menuTree = ref<any[]>([])
+const selectedMenus = ref<number[]>([])
 
 // 表单验证规则
 const roleFormRules = {
@@ -435,6 +497,81 @@ const savePermissions = async () => {
   } catch (error: any) {
     ElMessage.error(error?.message || '保存权限失败，请稍后重试')
     console.error(error)
+  } finally {
+    submitting.value = false
+  }
+}
+
+// 获取角色关联的菜单
+const fetchRoleMenus = async (roleId: number) => {
+  menusLoading.value = true
+  try {
+    // 获取所有菜单
+    const { data: menusData } = await useFetch('/api/menus')
+    if (menusData.value && menusData.value.menus) {
+      menuTree.value = menusData.value.menus
+    }
+
+    // 获取角色关联的菜单ID
+    const { data: roleMenusData } = await useFetch(`/api/roles/${roleId}/menus`)
+    if (roleMenusData.value && roleMenusData.value.menuIds) {
+      selectedMenus.value = roleMenusData.value.menuIds
+    }
+  } catch (err) {
+    ElMessage.error('获取菜单数据失败')
+    console.error(err)
+  } finally {
+    menusLoading.value = false
+  }
+}
+
+// 打开菜单配置对话框
+const openMenuDialog = (role: Role) => {
+  editingRole.value = role
+  menuDialogVisible.value = true
+  fetchRoleMenus(role.id)
+}
+
+// 全选菜单
+const selectAllMenus = () => {
+  if (menuTreeRef.value) {
+    menuTreeRef.value.setCheckedNodes(menuTree.value)
+  }
+}
+
+// 取消全选菜单
+const unselectAllMenus = () => {
+  if (menuTreeRef.value) {
+    menuTreeRef.value.setCheckedKeys([])
+  }
+}
+
+// 保存角色菜单配置
+const saveMenus = async () => {
+  if (!editingRole.value.id) return
+  
+  submitting.value = true
+  try {
+    // 获取选中的菜单ID
+    const checkedMenus = menuTreeRef.value.getCheckedKeys()
+    const halfCheckedMenus = menuTreeRef.value.getHalfCheckedKeys()
+    const menuIds = [...checkedMenus, ...halfCheckedMenus]
+    
+    // 保存角色菜单配置
+    const { data, error } = await useFetch(`/api/roles/${editingRole.value.id}/menus`, {
+      method: 'POST',
+      body: { menuIds }
+    })
+    
+    if (error.value) {
+      throw new Error(error.value.message || '保存菜单配置失败')
+    }
+    
+    ElMessage.success('菜单配置已保存')
+    menuDialogVisible.value = false
+    fetchRoles()
+  } catch (err: any) {
+    ElMessage.error(err.message || '保存菜单配置失败')
   } finally {
     submitting.value = false
   }

@@ -55,56 +55,42 @@
           </div>
         </div>
         <el-menu
-          class="h-full border-0"
+          class="border-0"
           :default-active="activeMenuItem"
           router
           :collapse="isCollapse"
           :collapse-transition="true"
         >
-          <el-menu-item index="/dashboard" class="hover:bg-blue-50">
-            <el-icon><Icon name="i-tabler-dashboard" /></el-icon>
-            <template #title>控制台</template>
-          </el-menu-item>
-          
-          <el-menu-item v-if="hasPermission('users', 'read')" index="/users" class="hover:bg-blue-50">
-            <el-icon><Icon name="i-ph-users-three-duotone" /></el-icon>
-            <template #title>用户管理</template>
-          </el-menu-item>
-          
-          <el-menu-item v-if="hasPermission('roles', 'read')" index="/roles" class="hover:bg-blue-50">
-            <el-icon><Icon name="i-tabler-id-badge-2" /></el-icon>
-            <template #title>角色管理</template>
-          </el-menu-item>
-          
-          <el-menu-item v-if="hasPermission('permissions', 'read')" index="/permissions" class="hover:bg-blue-50">
-            <el-icon><Icon name="i-ph-key-duotone" /></el-icon>
-            <template #title>权限管理</template>
-          </el-menu-item>
-          
-          <el-menu-item index="/icons" class="hover:bg-blue-50">
-            <el-icon><Icon name="i-ph-palette-duotone" /></el-icon>
-            <template #title>图标库</template>
-          </el-menu-item>
-          
-          <el-menu-item index="/activities" class="hover:bg-blue-50">
-            <el-icon><Icon name="i-ph-activity-duotone" /></el-icon>
-            <template #title>活动日志</template>
-          </el-menu-item>
-
-          <el-sub-menu index="settings">
-            <template #title>
-              <el-icon><Icon name="i-ph-gear-six-duotone" /></el-icon>
-              <span>系统设置</span>
-            </template>
-            <el-menu-item index="/settings/profile" class="hover:bg-blue-50">
-              <el-icon><Icon name="i-ph-user-gear-duotone" /></el-icon>
-              <span>个人设置</span>
+          <!-- 动态生成菜单 -->
+          <template v-for="item in userMenus" :key="item.path">
+            <!-- 有子菜单的情况 -->
+            <el-sub-menu v-if="item.children && item.children.length > 0 && !item.hidden" :index="item.path">
+              <template #title>
+                <el-icon v-if="item.icon"><Icon :name="item.icon" /></el-icon>
+                <span>{{ item.name }}</span>
+              </template>
+              <el-menu-item
+                v-for="child in item.children"
+                :key="child.path"
+                :index="child.path"
+                class="hover:bg-blue-50"
+                v-show="!child.hidden"
+              >
+                <el-icon v-if="child.icon"><Icon :name="child.icon" /></el-icon>
+                <template #title>{{ child.name }}</template>
+              </el-menu-item>
+            </el-sub-menu>
+            
+            <!-- 没有子菜单的情况 -->
+            <el-menu-item
+              v-else-if="!item.hidden"
+              :index="item.path"
+              class="hover:bg-blue-50"
+            >
+              <el-icon v-if="item.icon"><Icon :name="item.icon" /></el-icon>
+              <template #title>{{ item.name }}</template>
             </el-menu-item>
-            <el-menu-item index="/settings/system" class="hover:bg-blue-50">
-              <el-icon><Icon name="i-ph-sliders-horizontal-duotone" /></el-icon>
-              <span>系统设置</span>
-            </el-menu-item>
-          </el-sub-menu>
+          </template>
         </el-menu>
       </aside>
       
@@ -129,7 +115,10 @@ definePageMeta({
 
 const route = useRoute()
 const activeMenuItem = computed(() => route.path)
-const { user, hasPermission, logout } = useAuth()
+const { user, hasPermission, logout, getAuthHeaders } = useAuth()
+
+// 用户菜单数据
+const userMenus = ref<any[]>([])
 
 // 侧边栏折叠状态
 const isCollapse = ref(false)
@@ -146,6 +135,24 @@ watch(isCollapse, (val) => {
   }
 })
 
+// 获取用户菜单
+const fetchUserMenus = async () => {
+  try {
+    const { data } = await useFetch('/api/menus', {
+      params: {
+        role: user.value?.roleId
+      },
+      headers: getAuthHeaders()
+    })
+    
+    if (data.value && data.value.menus) {
+      userMenus.value = data.value.menus
+    }
+  } catch (error) {
+    console.error('获取用户菜单失败:', error)
+  }
+}
+
 // 初始化时从 localStorage 读取折叠状态
 onMounted(() => {
   if (typeof window !== 'undefined') {
@@ -154,6 +161,9 @@ onMounted(() => {
       isCollapse.value = savedState === 'true'
     }
   }
+  
+  // 获取用户菜单
+  fetchUserMenus()
 })
 </script>
 

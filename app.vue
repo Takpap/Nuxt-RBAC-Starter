@@ -1,7 +1,7 @@
 <template>
   <div v-if="isAuthLoading" class="min-h-screen flex flex-col items-center justify-center bg-gray-50">
-    <el-icon class="loading-icon text-blue-500" :size="48"><Loading /></el-icon>
-    <div class="mt-4 text-gray-600">身份验证中...</div>
+    <el-icon class="loading-icon text-blue-500" :size="48"></el-icon>
+    <div v-loading.fullscreen.lock="isAuthLoading" class="mt-4 text-gray-600">身份验证中...</div>
   </div>
   <NuxtLayout v-else>
     <NuxtPage />

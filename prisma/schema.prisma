@@ -36,6 +36,7 @@ model Role {
   updatedAt    DateTime          @updatedAt
   users        User[]
   permissions  RolePermission[]
+  menus        RoleMenu[]        // 添加菜单关联
   activities   ActivityLog[]     // 与角色相关的活动记录
 }
 
@@ -73,11 +74,42 @@ model Session {
   user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+// Menu model
+model Menu {
+  id          Int        @id @default(autoincrement())
+  name        String     // 菜单名称
+  path        String?    // 路由路径
+  component   String?    // 组件路径
+  redirect    String?    // 重定向路径
+  icon        String?    // 图标
+  sort        Int        @default(0) // 排序号
+  parentId    Int?       // 父菜单ID
+  parent      Menu?      @relation("MenuHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children    Menu[]     @relation("MenuHierarchy")
+  roles       RoleMenu[] // 关联角色
+  hidden      Boolean    @default(false) // 是否隐藏
+  alwaysShow  Boolean    @default(false) // 是否总是显示
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  activities  ActivityLog[] // 与菜单相关的活动记录
+}
+
+// Role-Menu junction table
+model RoleMenu {
+  roleId      Int
+  menuId      Int
+  assignedAt  DateTime  @default(now())
+  role        Role      @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  menu        Menu      @relation(fields: [menuId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, menuId])
+}
+
 // 活动日志模型
 model ActivityLog {
   id              Int       @id @default(autoincrement())
   action          String    // 动作类型：create, update, delete, login, logout 等
-  resourceType    String    // 资源类型：user, role, permission 等
+  resourceType    String    // 资源类型：user, role, permission, menu 等
   resourceId      String?   // 资源ID
   description     String    // 活动描述
   ipAddress       String?   // IP地址
@@ -97,4 +129,7 @@ model ActivityLog {
   
   permissionId    Int?      // 权限ID
   permission      Permission? @relation(fields: [permissionId], references: [id], onDelete: SetNull)
+  
+  menuId          Int?      // 菜单ID
+  menu            Menu?     @relation(fields: [menuId], references: [id], onDelete: SetNull)
 }
