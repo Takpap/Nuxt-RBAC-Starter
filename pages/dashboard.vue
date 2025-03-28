@@ -69,6 +69,31 @@
       </el-col>
     </el-row>
     
+    <!-- 新增: 系统监控图表区域 -->
+    <el-row :gutter="20" class="mb-6">
+      <el-col :span="24">
+        <el-card class="shadow-sm hover:shadow-md transition-shadow duration-300">
+          <template #header>
+            <div class="flex items-center justify-between">
+              <h3 class="text-lg font-semibold text-gray-700 flex items-center">
+                <Icon name="i-mdi-chart-line" class="mr-2 text-indigo-500 text-xl" />
+                系统监控
+              </h3>
+              <el-button-group>
+                <el-tooltip content="展开全屏查看" placement="top">
+                  <el-button type="info" size="small" text class="hover:bg-gray-50 px-3 py-1 rounded-md">
+                    <Icon name="i-mdi-arrow-expand-all" />
+                  </el-button>
+                </el-tooltip>
+              </el-button-group>
+            </div>
+          </template>
+          
+          <SystemMonitor />
+        </el-card>
+      </el-col>
+    </el-row>
+    
     <el-row :gutter="20">
       <el-col :xs="24" :lg="16">
         <el-card class="mb-6 shadow-sm hover:shadow-md transition-shadow duration-300">
@@ -122,7 +147,7 @@
       </el-col>
       
       <el-col :xs="24" :lg="8">
-        <el-card class="shadow-sm hover:shadow-md transition-shadow duration-300">
+        <el-card class="shadow-sm hover:shadow-md transition-shadow duration-300 mb-6">
           <template #header>
             <div class="flex items-center justify-between">
               <h3 class="text-lg font-semibold text-gray-700 flex items-center">
@@ -192,12 +217,28 @@
             </div>
           </div>
         </el-card>
+        
+        <el-card class="shadow-sm hover:shadow-md transition-shadow duration-300">
+          <template #header>
+            <div class="flex items-center justify-between">
+              <h3 class="text-lg font-semibold text-gray-700 flex items-center">
+                <Icon name="i-ph-users-three-duotone" class="mr-2 text-blue-500 text-xl" />
+                用户分布
+              </h3>
+            </div>
+          </template>
+          
+          <ActiveUsersDashboard />
+        </el-card>
       </el-col>
     </el-row>
   </div>
 </template>
 
 <script setup lang="ts">
+import SystemMonitor from '~/components/SystemMonitor.vue'
+import ActiveUsersDashboard from '~/components/ActiveUsersDashboard.vue'
+
 definePageMeta({
   layout: 'admin'
 })
@@ -327,11 +368,27 @@ const fetchRecentActivities = async () => {
   }
 }
 
+// 获取系统信息
+const fetchSystemInfo = async () => {
+  try {
+    const { data } = await useFetch('/api/system/info')
+    
+    if (data.value) {
+      systemInfo.os = data.value.os.type + ' ' + data.value.os.release
+      systemInfo.version = data.value.version
+      systemInfo.time = new Date(data.value.time).toLocaleString()
+    }
+  } catch (err) {
+    console.error('获取系统信息失败', err)
+  }
+}
+
 // 刷新数据
 const refreshData = async () => {
   await Promise.all([
     fetchStats(),
-    fetchRecentActivities()
+    fetchRecentActivities(),
+    fetchSystemInfo()
   ])
   
   ElMessage.success('数据已刷新')

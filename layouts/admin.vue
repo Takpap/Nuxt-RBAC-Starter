@@ -45,15 +45,7 @@
     
     <main class="flex-grow flex flex-row h-[calc(100vh-112px)]">
       <aside :class="[isCollapse ? 'w-16' : 'w-64', 'bg-white border-r shadow-sm transition-all duration-300 h-full sticky left-0']">
-        <div class="p-4 border-b bg-blue-50 flex justify-between items-center">
-          <h2 v-if="!isCollapse" class="text-sm font-semibold text-gray-500 uppercase flex items-center">
-            <Icon name="i-ph-list-duotone" class="mr-1" />
-            管理菜单
-          </h2>
-          <div class="cursor-pointer text-gray-500 hover:text-blue-500" @click="toggleCollapse">
-            <Icon :name="isCollapse ? 'i-ph-arrows-right-duotone' : 'i-ph-arrows-left-duotone'" class="text-xl" />
-          </div>
-        </div>
+
         <el-menu
           class="border-0"
           :default-active="activeMenuItem"
