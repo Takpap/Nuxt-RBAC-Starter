@@ -78,7 +78,7 @@ export default defineEventHandler(async (event: H3Event) => {
   // Get auth token from headers
   const authHeader = getHeader(event, 'authorization') || '';
   const token = authHeader.replace('Bearer ', '');
-  
+
   if (!token) {
     throw createError({
       statusCode: 401,

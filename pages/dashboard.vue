@@ -341,7 +341,7 @@ const refreshData = async () => {
 onMounted(async () => {
   if (typeof window !== 'undefined') {
     await nextTick()
-    await fetchStats();
+    await refreshData();
   }
   
   // 更新系统时间

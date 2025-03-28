@@ -293,68 +293,65 @@ async function main() {
       sort: 1
     },
     {
+      name: '系统设置',
+      path: '/settings',
+      icon: 'i-ph-gear-six-duotone',
+      sort: 2
+    },
+    {
       name: '用户管理',
       path: '/users',
       component: 'pages/users/index.vue',
       icon: 'i-ph-users-three-duotone',
-      sort: 2
+      sort: 3,
+      parentId: 2
     },
     {
       name: '角色管理',
       path: '/roles',
       component: 'pages/roles/index.vue',
       icon: 'i-tabler-id-badge-2',
-      sort: 3
+      sort: 4,
+      parentId: 2
     },
     {
       name: '权限管理',
       path: '/permissions',
       component: 'pages/permissions/index.vue',
       icon: 'i-ph-key-duotone',
-      sort: 4
+      sort: 5,
+      parentId: 2
     },
     {
       name: '菜单管理',
       path: '/menus',
       component: 'pages/menus/index.vue',
       icon: 'i-ph-list-bullets-duotone',
-      sort: 5
+      sort: 6,
+      parentId: 2
     },
     {
       name: '活动日志',
       path: '/activities',
       component: 'pages/activities/index.vue',
       icon: 'i-ph-activity-duotone',
-      sort: 6
-    },
-    {
-      name: '系统',
-      path: '/settings',
-      icon: 'i-ph-gear-six-duotone',
-      sort: 7
+      sort: 7,
+      parentId: 2
     },
     {
       name: '个人设置',
       path: '/settings/profile',
       component: 'pages/settings/profile.vue',
       icon: 'i-ph-user-gear-duotone',
-      sort: 1,
-      parentId: 7
-    },
-    {
-      name: '设置',
-      path: '/settings/system',
-      component: 'pages/settings/system.vue',
-      icon: 'i-ph-sliders-horizontal-duotone',
-      sort: 2,
-      parentId: 7
+      sort: 8,
+      parentId: 2
     },
     {
       name: '图标库',
       path: '/icons',
       component: 'pages/icons/index.vue',
       icon: 'i-ph-palette-duotone',
-      sort: 8
+      sort: 9,
     },
   ];
 
