@@ -199,7 +199,6 @@
 
 <script setup lang="ts">
 definePageMeta({
-  middleware: ['auth'],
   layout: 'admin'
 })
 
@@ -339,9 +338,11 @@ const refreshData = async () => {
 }
 
 // 初始化
-onMounted(() => {
-  fetchStats()
-  fetchRecentActivities()
+onMounted(async () => {
+  if (typeof window !== 'undefined') {
+    await nextTick()
+    await fetchStats();
+  }
   
   // 更新系统时间
   setInterval(() => {

@@ -59,7 +59,7 @@ export default function useAuth() {
       if (data.value && 'token' in data.value && 'user' in data.value) {
         const authToken = data.value.token as string
         token.value = authToken
-        user.value = data.value.user as User
+        user.value = data.value.user as unknown as User
         
         // 保存token到localStorage
         if (typeof window !== 'undefined') {

@@ -1,9 +1,5 @@
 <template>
-  <div v-if="isAuthLoading" class="min-h-screen flex flex-col items-center justify-center bg-gray-50">
-    <el-icon class="loading-icon text-blue-500" :size="48"></el-icon>
-    <div v-loading.fullscreen.lock="isAuthLoading" class="mt-4 text-gray-600">身份验证中...</div>
-  </div>
-  <NuxtLayout v-else>
+  <NuxtLayout>
     <NuxtPage />
   </NuxtLayout>
 </template>
@@ -13,9 +9,9 @@
 const isAuthLoading = useState('auth_loading', () => true)
 
 // 在应用初始化时设置为加载中，身份验证检查完成后再设置为false
-onMounted(() => {
+onMounted(async () => {
   const { checkAuth } = useAuth()
-  checkAuth().finally(() => {
+  await checkAuth().finally(() => {
     isAuthLoading.value = false
   })
 })

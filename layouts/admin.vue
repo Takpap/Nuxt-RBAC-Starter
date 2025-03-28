@@ -115,7 +115,7 @@ definePageMeta({
 
 const route = useRoute()
 const activeMenuItem = computed(() => route.path)
-const { user, hasPermission, logout, getAuthHeaders } = useAuth()
+const { user, logout, getAuthHeaders } = useAuth()
 
 // 用户菜单数据
 const userMenus = ref<any[]>([])
@@ -154,16 +154,17 @@ const fetchUserMenus = async () => {
 }
 
 // 初始化时从 localStorage 读取折叠状态
-onMounted(() => {
+onMounted(async () => {
   if (typeof window !== 'undefined') {
     const savedState = localStorage.getItem('sidebarCollapsed')
     if (savedState !== null) {
       isCollapse.value = savedState === 'true'
     }
   }
-  
+
+  await nextTick()
   // 获取用户菜单
-  fetchUserMenus()
+  await fetchUserMenus()
 })
 </script>
 
