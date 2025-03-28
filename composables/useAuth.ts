@@ -189,6 +189,7 @@ export default function useAuth() {
     logout,
     checkAuth,
     hasPermission,
-    getAuthHeaders
+    getAuthHeaders,
+    clearAuth
   }
 } 
