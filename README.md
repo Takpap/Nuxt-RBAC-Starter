@@ -1,288 +1,290 @@
-# Nuxt RBAC (基于角色的访问控制系统)
+# Nuxt RBAC (Role-Based Access Control System)
 
-这是一个使用Nuxt 3构建的基于角色的访问控制(RBAC)系统示例项目。该项目展示了如何在Nuxt应用中实现用户认证和基于角色的权限控制。
+This is an example project of a Role-Based Access Control (RBAC) system built with Nuxt 3. The project demonstrates how to implement user authentication and role-based permission control in a Nuxt application.
 
-## 功能特性
+## Features
 
-- 用户认证（注册、登录、登出）
-- 基于角色的权限控制
-- 用户管理
-- 角色管理
-- 权限管理
-- 菜单管理
-- API权限验证中间件
-- 现代化UI设计与动画效果
-- 图标库展示和管理
-- 系统活动日志记录和查询
-- 系统监控和数据统计
-- 历史数据分析和图表展示
+- User authentication (registration, login, logout)
+- Role-based permission control
+- User management
+- Role management
+- Permission management
+- Menu management
+- API permission verification middleware
+- Modern UI design and animation effects
+- Icon library display and management
+- System activity log recording and querying
+- System monitoring and data statistics
+- Historical data analysis and chart display
 
-## 技术栈
+## Technology Stack
 
-- [Nuxt 3](https://nuxt.com/) - Vue.js框架
-- [Prisma](https://www.prisma.io/) - ORM数据库工具
-- [Element Plus](https://element-plus.org/) - UI组件库
-- [Tailwind CSS](https://tailwindcss.com/) - CSS框架
-- [SQLite](https://www.sqlite.org/) - 数据库（开发环境）
-- [JWT](https://jwt.io/) - JSON Web Token认证
-- [@nuxt/icon](https://nuxt.com/modules/icon) - 图标管理，支持200,000+图标
-- [Iconify](https://iconify.design/) - 开源图标集合
-- [DayJS](https://day.js.org/) - 轻量级日期处理库
-- [Chart.js](https://www.chartjs.org/) - 图表绘制库
-- [Vue-ChartJS](https://vue-chartjs.org/) - Vue.js的Chart.js集成
-- [Systeminformation](https://systeminformation.io/) - 系统信息获取库
+- [Nuxt 3](https://nuxt.com/) - Vue.js framework
+- [Prisma](https://www.prisma.io/) - ORM database tool
+- [Element Plus](https://element-plus.org/) - UI component library
+- [Tailwind CSS](https://tailwindcss.com/) - CSS framework
+- [SQLite](https://www.sqlite.org/) - Database (development environment)
+- [JWT](https://jwt.io/) - JSON Web Token authentication
+- [@nuxt/icon](https://nuxt.com/modules/icon) - Icon management, supporting 200,000+ icons
+- [Iconify](https://iconify.design/) - Open source icon collection
+- [DayJS](https://day.js.org/) - Lightweight date processing library
+- [Chart.js](https://www.chartjs.org/) - Chart drawing library
+- [Vue-ChartJS](https://vue-chartjs.org/) - Chart.js integration for Vue.js
+- [Systeminformation](https://systeminformation.io/) - System information retrieval library
 
-## 界面预览
+## UI Preview
 
-系统提供了美观的现代化UI设计：
+The system provides an aesthetic modern UI design:
 
-- 响应式布局，适配移动设备和桌面端
-- 动态卡片和悬停效果
-- 清晰的数据可视化
-- 丰富的图标库和自定义图标支持
-- 优化的表单和表格设计
-- 实时系统状态监控图表
+- Responsive layout, adapting to mobile devices and desktop
+- Dynamic cards and hover effects
+- Clear data visualization
+- Rich icon library and custom icon support
+- Optimized form and table design
+- Real-time system status monitoring charts
 
-## 系统架构
+## System Architecture
 
-### 数据模型
+### Data Models
 
-- **User**: 用户信息，包含角色关联
-- **Role**: 角色定义，包含多个权限
-- **Permission**: 权限定义，基于资源和操作
-- **RolePermission**: 角色-权限关联表
-- **Session**: 用户会话管理
-- **Menu**: 菜单结构定义
-- **RoleMenu**: 角色-菜单关联表
-- **ActivityLog**: 系统活动日志
+- **User**: User information, including role associations
+- **Role**: Role definitions, containing multiple permissions
+- **Permission**: Permission definitions, based on resources and operations
+- **RolePermission**: Role-permission association table
+- **Session**: User session management
+- **Menu**: Menu structure definition
+- **RoleMenu**: Role-menu association table
+- **ActivityLog**: System activity log
 
-### API接口
+### API Interfaces
 
-- **/api/auth**: 认证相关接口（登录、注册、登出）
-- **/api/users**: 用户管理接口
-- **/api/roles**: 角色管理接口
-- **/api/permissions**: 权限管理接口
-- **/api/sessions**: 会话管理接口
-- **/api/activities**: 活动日志接口
-- **/api/menus**: 菜单管理接口
-- **/api/system**: 系统监控和数据统计接口
+- **/api/auth**: Authentication-related interfaces (login, registration, logout)
+- **/api/users**: User management interfaces
+- **/api/roles**: Role management interfaces
+- **/api/permissions**: Permission management interfaces
+- **/api/sessions**: Session management interfaces
+- **/api/activities**: Activity log interfaces
+- **/api/menus**: Menu management interfaces
+- **/api/system**: System monitoring and data statistics interfaces
 
-## 快速开始
+## Quick Start
 
-### 环境要求
+### Requirements
 
 - Node.js 18+
 - Bun 1.0+
 
-### 安装
+### Installation
 
 ```bash
-# 安装依赖
+# Install dependencies
 bun install
 ```
 
-### 数据库初始化
+### Database Initialization
 
 ```bash
-# 初始化并填充测试数据
+# Initialize and populate test data
 bun db:seed
 ```
 
-### 开发环境运行
+### Development Environment
 
 ```bash
-# 启动开发服务器
+# Start development server
 bun dev
 ```
 
-访问 http://localhost:3000 查看应用。
+Visit http://localhost:3000 to view the application.
 
-### 生产环境构建
+### Production Build
 
 ```bash
-# 构建生产环境应用
+# Build for production
 bun build
 
-# 本地预览生产环境
+# Preview production locally
 bun preview
 ```
 
-## 项目结构
+## Project Structure
 
 ```
-├── prisma/                  # Prisma配置和迁移
-│   ├── schema.prisma        # 数据库模型定义
-│   └── seed.ts              # 种子数据脚本
-├── server/                  # 服务端代码
-│   ├── api/                 # API端点
-│   │   ├── auth/            # 认证相关API
-│   │   ├── users/           # 用户管理API
-│   │   ├── roles/           # 角色管理API
-│   │   ├── permissions/     # 权限管理API
-│   │   ├── sessions/        # 会话管理API
-│   │   ├── menus/           # 菜单管理API
-│   │   ├── activities/      # 活动日志API
-│   │   └── system/          # 系统监控API
-│   ├── middleware/          # 中间件
-│   │   └── auth.ts          # 认证和权限验证中间件
-│   ├── utils/               # 工具函数
-│   └── services/            # 服务层
-├── components/              # 共享组件
-│   └── ui/                  # UI组件
-│       └── IconsDisplay.vue # 图标展示组件
-├── pages/                   # 页面组件
-│   ├── dashboard.vue        # 控制台页面
-│   ├── users.vue            # 用户管理页面
-│   ├── roles.vue            # 角色管理页面
-│   ├── permissions.vue      # 权限管理页面
-│   ├── menus/               # 菜单管理页面
-│   ├── settings/            # 系统设置页面
-│   ├── icons.vue            # 图标库页面
-│   ├── activities.vue       # 活动日志页面
-│   ├── login.vue            # 登录页面
-│   └── register.vue         # 注册页面
-├── layouts/                 # 布局组件
-│   ├── default.vue          # 默认布局
-│   ├── admin.vue            # 管理员布局，带侧边栏
-│   └── home.vue             # 首页布局，带营销页脚
-├── middleware/              # 客户端中间件
-│   ├── auth.ts              # 认证中间件
-│   └── guest.ts             # 访客中间件
-├── composables/             # 可组合函数
-│   └── useAuth.ts           # 认证相关函数
-├── app.vue                  # 应用入口组件
-├── nuxt.config.ts           # Nuxt配置
-└── package.json             # 项目依赖
+├── prisma/                  # Prisma configuration and migrations
+│   ├── schema.prisma        # Database model definitions
+│   └── seed.ts              # Seed data script
+├── server/                  # Server-side code
+│   ├── api/                 # API endpoints
+│   │   ├── auth/            # Authentication-related APIs
+│   │   ├── users/           # User management APIs
+│   │   ├── roles/           # Role management APIs
+│   │   ├── permissions/     # Permission management APIs
+│   │   ├── sessions/        # Session management APIs
+│   │   ├── menus/           # Menu management APIs
+│   │   ├── activities/      # Activity log APIs
+│   │   └── system/          # System monitoring APIs
+│   ├── middleware/          # Middleware
+│   │   └── auth.ts          # Authentication and permission verification middleware
+│   ├── utils/               # Utility functions
+│   └── services/            # Service layer
+├── components/              # Shared components
+│   └── ui/                  # UI components
+│       └── IconsDisplay.vue # Icon display component
+├── pages/                   # Page components
+│   ├── dashboard.vue        # Dashboard page
+│   ├── users.vue            # User management page
+│   ├── roles.vue            # Role management page
+│   ├── permissions.vue      # Permission management page
+│   ├── menus/               # Menu management pages
+│   ├── settings/            # System settings pages
+│   ├── icons.vue            # Icon library page
+│   ├── activities.vue       # Activity log page
+│   ├── login.vue            # Login page
+│   └── register.vue         # Registration page
+├── layouts/                 # Layout components
+│   ├── default.vue          # Default layout
+│   ├── admin.vue            # Admin layout with sidebar
+│   └── home.vue             # Home layout with marketing footer
+├── middleware/              # Client-side middleware
+│   ├── auth.ts              # Authentication middleware
+│   └── guest.ts             # Guest middleware
+├── composables/             # Composable functions
+│   └── useAuth.ts           # Authentication-related functions
+├── app.vue                  # Application entry component
+├── nuxt.config.ts           # Nuxt configuration
+└── package.json             # Project dependencies
 ```
 
-## 图标库特性
+## Icon Library Features
 
-本项目集成了 @nuxt/icon 模块，提供以下功能：
+This project integrates the @nuxt/icon module, providing the following features:
 
-- 访问超过 200,000 个开源图标
-- 图标分类展示和管理
-- 便捷的图标搜索和预览
-- 一键复制图标名称
-- 自定义图标预览
+- Access to over 200,000 open-source icons
+- Icon categorization display and management
+- Convenient icon search and preview
+- One-click copy of icon names
+- Custom icon preview
 
-使用方法非常简单：
+Usage is very simple:
 
 ```vue
 <Icon name="i-ph-user-duotone" />
 ```
 
-其中 `i-ph-user-duotone` 为图标名称，格式为 `i-[集合名称]-[图标名称]`，例如：
-- `i-ph-user-duotone`: Phosphor Icons 的 user 图标（双色版本）
-- `i-mdi-home`: Material Design Icons 的 home 图标
-- `i-tabler-settings`: Tabler Icons 的 settings 图标
+Where `i-ph-user-duotone` is the icon name, formatted as `i-[collection-name]-[icon-name]`, for example:
+- `i-ph-user-duotone`: Phosphor Icons user icon (duotone version)
+- `i-mdi-home`: Material Design Icons home icon
+- `i-tabler-settings`: Tabler Icons settings icon
 
-## 活动日志功能
+## Activity Log Features
 
-本系统提供完整的活动日志记录和查询功能：
+The system provides comprehensive activity log recording and querying capabilities:
 
-### 日志记录
+### Log Recording
 
-系统会自动记录以下类型的活动：
+The system automatically records the following types of activities:
 
-- 用户登录和登出
-- 资源的创建、更新和删除（用户、角色、权限等）
-- 角色分配变更
-- 权限变更
-- 其他重要系统操作
+- User login and logout
+- Resource creation, update, and deletion (users, roles, permissions, etc.)
+- Role assignment changes
+- Permission changes
+- Other important system operations
 
-每条日志包含以下信息：
-- 操作类型（login、logout、create、update、delete、assign_role等）
-- 资源类型（user、role、permission等）
-- 资源ID
-- 详细描述
-- 操作用户信息
-- IP地址与用户代理
-- 时间戳
+Each log entry contains the following information:
+- Operation type (login, logout, create, update, delete, assign_role, etc.)
+- Resource type (user, role, permission, etc.)
+- Resource ID
+- Detailed description
+- Operating user information
+- IP address and user agent
+- Timestamp
 
-### 日志查询
+### Log Querying
 
-系统提供强大的日志查询功能：
+The system provides powerful log querying functionality:
 
-- 按操作类型筛选
-- 按资源类型筛选
-- 按用户筛选
-- 分页和排序
-- 清晰的视觉区分（不同操作类型使用不同颜色标记）
+- Filter by operation type
+- Filter by resource type
+- Filter by user
+- Pagination and sorting
+- Clear visual distinction (different operation types are marked with different colors)
 
-### 仪表板集成
+### Dashboard Integration
 
-控制台仪表板显示最近的系统活动，提供系统运行状态的实时概览。
+The dashboard displays recent system activities, providing a real-time overview of system status.
 
-### 实现技术
+### Implementation Technology
 
-- Prisma ORM 数据模型
-- RESTful API 接口
+- Prisma ORM data models
+- RESTful API interfaces
 - Vue 3 + Element Plus UI
-- TypeScript 类型安全
+- TypeScript type safety
 
-## 系统监控与统计
+## System Monitoring and Statistics
 
-本系统提供全面的系统监控和数据统计功能：
+The system provides comprehensive system monitoring and data statistics functionality:
 
-### 系统信息
+### System Information
 
-- CPU使用率和核心数
-- 内存使用情况
-- 磁盘空间使用情况
-- 操作系统信息
-- 服务器运行时间
+- CPU usage and core count
+- Memory usage
+- Disk space usage
+- Operating system information
+- Server uptime
 
-### 业务数据统计
+### Business Data Statistics
 
-- 用户注册趋势
-- 活跃用户数据
-- 系统资源使用统计
-- 各类资源增长趋势
+- User registration trends
+- Active user data
+- System resource usage statistics
+- Growth trends for various resources
 
-### 历史数据分析
+### Historical Data Analysis
 
-- 多维度数据筛选
-- 时间范围选择
-- 图表可视化展示
-- 数据导出功能
+- Multi-dimensional data filtering
+- Time range selection
+- Chart visualization
+- Data export functionality
 
-### 图表类型
+### Chart Types
 
-- 折线图：展示时间序列数据
-- 柱状图：对比不同类别的数量
-- 饼图：显示比例分布
-- 雷达图：多维度指标对比
+- Line charts: Display time series data
+- Bar charts: Compare quantities across different categories
+- Pie charts: Show proportion distributions
+- Radar charts: Multi-dimensional metric comparison
 
-## 权限系统设计
+## Permission System Design
 
-本项目采用了基于角色的访问控制（RBAC）模型：
+This project adopts a Role-Based Access Control (RBAC) model:
 
-1. 每个用户关联一个角色
-2. 每个角色包含多个权限
-3. 每个权限定义为资源（resource）和操作（action）的组合
-4. API访问时通过中间件验证用户是否拥有对应的权限
+1. Each user is associated with a role
+2. Each role contains multiple permissions
+3. Each permission is defined as a combination of resource and action
+4. During API access, middleware verifies whether the user has the corresponding permission
 
-## 菜单管理特性
+## Menu Management Features
 
-系统提供了灵活的菜单管理功能：
+The system provides flexible menu management functionality:
 
-- 多级菜单结构支持
-- 基于角色的菜单权限控制
-- 动态路由生成
-- 图标和排序自定义
-- 菜单显示/隐藏控制
+- Multi-level menu structure support
+- Role-based menu permission control
+- Dynamic route generation
+- Icon and sorting customization
+- Menu display/hide control
 
-管理后台支持侧边栏折叠功能，提供更大的内容显示空间：
+The admin backend supports sidebar collapse functionality, providing more space for content display:
 
-- 支持菜单栏折叠/展开切换
-- 显示图标化菜单
-- 自动保存用户的折叠状态偏好
-- 顶部导航栏的快捷折叠按钮
+- Support for menu bar collapse/expand toggle
+- Display iconified menu
+- Automatic saving of user's collapse state preferences
+- Quick collapse button in the top navigation bar
 
-## 开发与贡献
+## Development and Contribution
 
-欢迎提交Issues和Pull Requests。
+Issues and Pull Requests are welcome.
 
-## 许可证
+## License
 
 [MIT](LICENSE)
+
+_Note: This is the English version of the README. Translations are available in [Chinese](README.zh.md) and [Japanese](README.ja.md)._
