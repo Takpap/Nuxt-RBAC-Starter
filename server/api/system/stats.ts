@@ -1,9 +1,5 @@
 import { defineEventHandler } from 'h3'
-import os from 'os'
-import { promisify } from 'util'
-import { exec } from 'child_process'
-
-const execAsync = promisify(exec)
+import si from 'systeminformation'
 
 export default defineEventHandler(async () => {
   try {
@@ -18,67 +14,56 @@ export default defineEventHandler(async () => {
 })
 
 async function getSystemStats() {
-  // 获取 CPU 负载
-  const cpuLoad = os.loadavg()[0]
-  const cpus = os.cpus().length
-  const cpuUsage = Math.min(Math.round((cpuLoad / cpus) * 100), 100)
+  const [cpu, mem, osInfo, time, fsSize, currentLoad] = await Promise.all([
+    si.cpu(),
+    si.mem(),
+    si.osInfo(),
+    si.time(),
+    si.fsSize(),
+    si.currentLoad(),
+  ])
+
+  // 计算内存使用率
+  const memoryUsage = Math.round((mem.active / mem.total) * 100)
   
-  // 获取内存使用情况
-  const totalMem = os.totalmem()
-  const freeMem = os.freemem()
-  const memoryUsage = Math.round(((totalMem - freeMem) / totalMem) * 100)
-  
-  // 获取系统正常运行时间
-  const uptime = os.uptime()
-  const uptimeHours = Math.floor(uptime / 3600)
-  const uptimeMinutes = Math.floor((uptime % 3600) / 60)
-  
-  // 获取磁盘使用情况 (仅在 Linux/macOS 上有效)
-  let diskUsage = 0
-  try {
-    if (process.platform !== 'win32') {
-      const { stdout } = await execAsync("df -kP / | awk 'NR==2 {print $5}'")
-      diskUsage = parseInt(stdout.trim().replace('%', ''))
-    } else {
-      // Windows 系统下使用模拟数据
-      diskUsage = Math.floor(Math.random() * 30) + 40
-    }
-  } catch (error) {
-    console.error('获取磁盘使用率失败:', error)
-    diskUsage = Math.floor(Math.random() * 30) + 40 // 模拟数据
-  }
-  
+  // 计算磁盘使用率（使用主磁盘）
+  const mainDisk = fsSize[0]
+  const diskUsage = Math.round((mainDisk.used / mainDisk.size) * 100)
+
   // 返回系统信息
   return {
     os: {
-      type: os.type(),
-      platform: os.platform(),
-      release: os.release(),
-      hostname: os.hostname()
+      type: osInfo.platform,
+      distro: osInfo.distro,
+      release: osInfo.release,
+      hostname: osInfo.hostname
     },
     cpu: {
-      usage: cpuUsage,
-      model: os.cpus()[0].model,
-      cores: cpus,
-      loadavg: os.loadavg()
+      usage: Math.round(currentLoad.currentLoad),
+      model: cpu.manufacturer + ' ' + cpu.brand,
+      cores: cpu.cores,
+      physicalCores: cpu.physicalCores,
+      speed: cpu.speed
     },
     memory: {
       usage: memoryUsage,
-      total: formatBytes(totalMem),
-      free: formatBytes(freeMem),
-      used: formatBytes(totalMem - freeMem)
+      total: formatBytes(mem.total),
+      free: formatBytes(mem.free),
+      used: formatBytes(mem.active),
+      swapUsed: formatBytes(mem.swapused),
+      swapTotal: formatBytes(mem.swaptotal)
     },
     disk: {
-      usage: diskUsage
+      usage: diskUsage,
+      total: formatBytes(mainDisk.size),
+      used: formatBytes(mainDisk.used),
+      free: formatBytes(mainDisk.size - mainDisk.used)
     },
     uptime: {
-      total: uptime,
-      formatted: `${uptimeHours}小时 ${uptimeMinutes}分钟`
+      total: time.uptime,
+      formatted: formatUptime(time.uptime)
     },
-    time: new Date().toISOString(),
-    network: {
-      interfaces: Object.keys(os.networkInterfaces()).length
-    }
+    time: new Date().toISOString()
   }
 }
 
@@ -91,4 +76,10 @@ function formatBytes(bytes: number): string {
   const i = Math.floor(Math.log(bytes) / Math.log(k))
   
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
+}
+
+function formatUptime(seconds: number): string {
+  const hours = Math.floor(seconds / 3600)
+  const minutes = Math.floor((seconds % 3600) / 60)
+  return `${hours}小时 ${minutes}分钟`
 } 
