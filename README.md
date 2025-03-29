@@ -9,10 +9,13 @@
 - 用户管理
 - 角色管理
 - 权限管理
+- 菜单管理
 - API权限验证中间件
 - 现代化UI设计与动画效果
 - 图标库展示和管理
 - 系统活动日志记录和查询
+- 系统监控和数据统计
+- 历史数据分析和图表展示
 
 ## 技术栈
 
@@ -25,6 +28,9 @@
 - [@nuxt/icon](https://nuxt.com/modules/icon) - 图标管理，支持200,000+图标
 - [Iconify](https://iconify.design/) - 开源图标集合
 - [DayJS](https://day.js.org/) - 轻量级日期处理库
+- [Chart.js](https://www.chartjs.org/) - 图表绘制库
+- [Vue-ChartJS](https://vue-chartjs.org/) - Vue.js的Chart.js集成
+- [Systeminformation](https://systeminformation.io/) - 系统信息获取库
 
 ## 界面预览
 
@@ -35,6 +41,7 @@
 - 清晰的数据可视化
 - 丰富的图标库和自定义图标支持
 - 优化的表单和表格设计
+- 实时系统状态监控图表
 
 ## 系统架构
 
@@ -45,6 +52,9 @@
 - **Permission**: 权限定义，基于资源和操作
 - **RolePermission**: 角色-权限关联表
 - **Session**: 用户会话管理
+- **Menu**: 菜单结构定义
+- **RoleMenu**: 角色-菜单关联表
+- **ActivityLog**: 系统活动日志
 
 ### API接口
 
@@ -54,33 +64,35 @@
 - **/api/permissions**: 权限管理接口
 - **/api/sessions**: 会话管理接口
 - **/api/activities**: 活动日志接口
+- **/api/menus**: 菜单管理接口
+- **/api/system**: 系统监控和数据统计接口
 
 ## 快速开始
 
 ### 环境要求
 
 - Node.js 18+
-- pnpm 9+
+- Bun 1.0+
 
 ### 安装
 
 ```bash
 # 安装依赖
-pnpm install
+bun install
 ```
 
 ### 数据库初始化
 
 ```bash
 # 初始化并填充测试数据
-pnpm db:seed
+bun db:seed
 ```
 
 ### 开发环境运行
 
 ```bash
 # 启动开发服务器
-pnpm dev
+bun dev
 ```
 
 访问 http://localhost:3000 查看应用。
@@ -89,10 +101,10 @@ pnpm dev
 
 ```bash
 # 构建生产环境应用
-pnpm build
+bun build
 
 # 本地预览生产环境
-pnpm preview
+bun preview
 ```
 
 ## 项目结构
@@ -108,10 +120,13 @@ pnpm preview
 │   │   ├── roles/           # 角色管理API
 │   │   ├── permissions/     # 权限管理API
 │   │   ├── sessions/        # 会话管理API
-│   │   └── activities/      # 活动日志API
+│   │   ├── menus/           # 菜单管理API
+│   │   ├── activities/      # 活动日志API
+│   │   └── system/          # 系统监控API
 │   ├── middleware/          # 中间件
 │   │   └── auth.ts          # 认证和权限验证中间件
-│   └── utils/               # 工具函数
+│   ├── utils/               # 工具函数
+│   └── services/            # 服务层
 ├── components/              # 共享组件
 │   └── ui/                  # UI组件
 │       └── IconsDisplay.vue # 图标展示组件
@@ -120,7 +135,8 @@ pnpm preview
 │   ├── users.vue            # 用户管理页面
 │   ├── roles.vue            # 角色管理页面
 │   ├── permissions.vue      # 权限管理页面
-│   ├── profile.vue          # 个人资料页面
+│   ├── menus/               # 菜单管理页面
+│   ├── settings/            # 系统设置页面
 │   ├── icons.vue            # 图标库页面
 │   ├── activities.vue       # 活动日志页面
 │   ├── login.vue            # 登录页面
@@ -204,6 +220,39 @@ pnpm preview
 - Vue 3 + Element Plus UI
 - TypeScript 类型安全
 
+## 系统监控与统计
+
+本系统提供全面的系统监控和数据统计功能：
+
+### 系统信息
+
+- CPU使用率和核心数
+- 内存使用情况
+- 磁盘空间使用情况
+- 操作系统信息
+- 服务器运行时间
+
+### 业务数据统计
+
+- 用户注册趋势
+- 活跃用户数据
+- 系统资源使用统计
+- 各类资源增长趋势
+
+### 历史数据分析
+
+- 多维度数据筛选
+- 时间范围选择
+- 图表可视化展示
+- 数据导出功能
+
+### 图表类型
+
+- 折线图：展示时间序列数据
+- 柱状图：对比不同类别的数量
+- 饼图：显示比例分布
+- 雷达图：多维度指标对比
+
 ## 权限系统设计
 
 本项目采用了基于角色的访问控制（RBAC）模型：
@@ -213,13 +262,15 @@ pnpm preview
 3. 每个权限定义为资源（resource）和操作（action）的组合
 4. API访问时通过中间件验证用户是否拥有对应的权限
 
-## 开发与贡献
+## 菜单管理特性
 
-欢迎提交Issues和Pull Requests。
+系统提供了灵活的菜单管理功能：
 
-## 许可证
-
-[MIT](LICENSE)
+- 多级菜单结构支持
+- 基于角色的菜单权限控制
+- 动态路由生成
+- 图标和排序自定义
+- 菜单显示/隐藏控制
 
 管理后台支持侧边栏折叠功能，提供更大的内容显示空间：
 
@@ -227,3 +278,11 @@ pnpm preview
 - 显示图标化菜单
 - 自动保存用户的折叠状态偏好
 - 顶部导航栏的快捷折叠按钮
+
+## 开发与贡献
+
+欢迎提交Issues和Pull Requests。
+
+## 许可证
+
+[MIT](LICENSE)
