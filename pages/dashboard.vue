@@ -202,6 +202,36 @@
                 {{ systemInfo.os }}
               </div>
             </el-descriptions-item>
+            <el-descriptions-item label="CPU型号" label-class-name="bg-gray-50 font-medium">
+              <div class="flex items-center">
+                <Icon name="i-mdi-cpu-64-bit" class="mr-2 text-gray-600" />
+                {{ systemInfo.cpu?.model || '未知' }}
+              </div>
+            </el-descriptions-item>
+            <el-descriptions-item label="CPU架构" label-class-name="bg-gray-50 font-medium">
+              <div class="flex items-center">
+                <Icon name="i-mdi-laptop" class="mr-2 text-gray-600" />
+                {{ systemInfo.os_arch?.arch || '未知' }} | {{ systemInfo.cpu?.cores || 0 }} 核心
+              </div>
+            </el-descriptions-item>
+            <el-descriptions-item label="内存容量" label-class-name="bg-gray-50 font-medium">
+              <div class="flex items-center">
+                <Icon name="i-mdi-memory" class="mr-2 text-gray-600" />
+                {{ systemInfo.memory?.total || '未知' }}
+              </div>
+            </el-descriptions-item>
+            <el-descriptions-item v-if="systemInfo.gpu && systemInfo.gpu.length > 0" label="显卡" label-class-name="bg-gray-50 font-medium">
+              <div class="flex items-center">
+                <Icon name="i-mdi-expansion-card" class="mr-2 text-gray-600" />
+                {{ systemInfo.gpu[0]?.model || '未知' }}
+              </div>
+            </el-descriptions-item>
+            <el-descriptions-item label="系统设备" label-class-name="bg-gray-50 font-medium">
+              <div class="flex items-center">
+                <Icon name="i-tabler-devices" class="mr-2 text-gray-600" />
+                {{ systemInfo.system?.manufacturer || '未知' }} {{ systemInfo.system?.model || '' }}
+              </div>
+            </el-descriptions-item>
             <el-descriptions-item label="服务器时间" label-class-name="bg-gray-50 font-medium">
               <div class="flex items-center">
                 <Icon name="i-uil-clock" class="mr-2 text-gray-600" />
@@ -300,8 +330,47 @@ const loadingUsers = ref(false)
 
 
 // 模拟系统信息
-const systemInfo = reactive({
+interface SystemInfo {
+  os: string;
+  cpu?: {
+    model?: string;
+    cores?: number;
+    physicalCores?: number;
+    speed?: string;
+    arch?: string;
+  };
+  gpu?: Array<{
+    model?: string;
+    vendor?: string;
+    vram?: string;
+    driver?: string;
+  }>;
+  memory?: {
+    total?: string;
+    free?: string;
+    used?: string;
+  };
+  system?: {
+    manufacturer?: string;
+    model?: string;
+  };
+  os_arch?: {
+    arch?: string;
+    type?: string;
+    platform?: string;
+    release?: string;
+  };
+  time: string;
+  version: string;
+}
+
+const systemInfo = reactive<SystemInfo>({
   os: 'Linux',
+  cpu: undefined,
+  gpu: undefined,
+  memory: undefined,
+  system: undefined,
+  os_arch: undefined,
   time: new Date().toLocaleString(),
   version: 'v1.0.0'
 })
@@ -431,8 +500,15 @@ const fetchSystemInfo = async () => {
       systemInfo.version = data.value.version
       systemInfo.time = new Date(data.value.time).toLocaleString()
       
+      // 填充新增的系统信息
+      systemInfo.cpu = data.value.cpu
+      systemInfo.gpu = data.value.gpu
+      systemInfo.memory = data.value.memory
+      systemInfo.system = data.value.system
+      systemInfo.os_arch = data.value.os
+
       // 获取系统运行时间
-      const systemData = data.value as any // 使用 any 临时解决类型问题
+      const systemData = data.value
       if (systemData.uptime) {
         systemUptime.value = systemData.uptime.formatted || '未知'
       }

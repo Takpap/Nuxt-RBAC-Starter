@@ -27,26 +27,30 @@
       </div>
       
       <!-- 系统资源图表 -->
-      <div class="bg-white rounded-lg p-4 shadow mb-4 h-80">
+      <div class="bg-white rounded-lg p-4 shadow mb-4">
         <h4 class="text-sm font-semibold text-gray-700 mb-3">系统资源使用率</h4>
         <client-only>
-          <LineChart
-            v-if="resourceChartData.labels.length > 0"
-            :chart-data="resourceChartData"
-            :chart-options="chartOptions"
-          />
+          <div class="h-80">
+            <LineChart
+              v-if="resourceChartData.labels.length > 0"
+              :chart-data="resourceChartData"
+              :chart-options="chartOptions"
+            />
+          </div>
         </client-only>
       </div>
       
       <!-- 网络使用图表 -->
-      <div class="bg-white rounded-lg p-4 shadow h-60">
+      <div class="bg-white rounded-lg p-4 shadow">
         <h4 class="text-sm font-semibold text-gray-700 mb-3">网络流量 (Mbps)</h4>
         <client-only>
-          <LineChart
-            v-if="networkChartData.labels.length > 0"
-            :chart-data="networkChartData"
-            :chart-options="networkChartOptions"
-          />
+          <div class="h-60">
+            <LineChart
+              v-if="networkChartData.labels.length > 0"
+              :chart-data="networkChartData"
+              :chart-options="networkChartOptions"
+            />
+          </div>
         </client-only>
       </div>
       
