@@ -46,6 +46,11 @@ async function main() {
     { name: 'view-activities', description: 'View activities', resource: 'activities', action: 'read' },
     { name: 'count-activities', description: 'Count activities', resource: 'activities', action: 'count' },
     { name: 'recent-activities', description: 'Recent activities', resource: 'activities', action: 'recent' },
+
+    // System permissions
+    { name: 'stats-system', description: 'Stats system', resource: 'system', action: 'read' },
+    { name: 'info-system', description: 'Info system', resource: 'system', action: 'read' },
+    { name: 'history-system', description: 'History system', resource: 'system', action: 'read' },
   ];
 
   console.log('Creating permissions...');

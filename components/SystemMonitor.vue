@@ -101,7 +101,7 @@ import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
 const loading = ref(true)
 const selectedPeriod = ref('hour')
 const lastUpdated = ref(new Date())
-const eventSource = ref<EventSource | null>(null)
+const pollingInterval = ref<NodeJS.Timeout | null>(null)
 
 // 实时数据
 const realtimeStats = reactive({
@@ -247,42 +247,40 @@ async function fetchHistoryData() {
   }
 }
 
-// 初始化 SSE 连接
-function initEventSource() {
-  if (typeof window === 'undefined') return;
-  
-  if (eventSource.value) {
-    eventSource.value.close()
-    eventSource.value = null
+// 获取实时系统状态
+async function fetchRealtimeStats() {
+  try {
+    const { data } = await useFetch('/api/system/stats')
+    if (data.value) {
+      // 保存前一个状态以计算趋势
+      previousStats.cpu = realtimeStats.cpu
+      previousStats.memory = realtimeStats.memory
+      previousStats.disk = realtimeStats.disk
+      
+      // 更新实时状态
+      realtimeStats.cpu = data.value.cpu.usage
+      realtimeStats.memory = data.value.memory.usage
+      realtimeStats.disk = data.value.disk.usage
+      
+      lastUpdated.value = new Date()
+    }
+  } catch (error) {
+    console.error('获取系统状态失败:', error)
+  }
+}
+
+// 初始化轮询
+function initPolling() {
+  if (pollingInterval.value) {
+    clearInterval(pollingInterval.value)
+    pollingInterval.value = null
   }
   
-  const { createEventSource } = useEventSource()
-  eventSource.value = createEventSource('/api/system/stats', {
-    onMessage(event) {
-      try {
-        const data = JSON.parse(event.data)
-        
-        // 保存前一个状态以计算趋势
-        previousStats.cpu = realtimeStats.cpu
-        previousStats.memory = realtimeStats.memory
-        previousStats.disk = realtimeStats.disk
-        
-        // 更新实时状态
-        realtimeStats.cpu = data.cpu.usage
-        realtimeStats.memory = data.memory.usage
-        realtimeStats.disk = data.disk.usage
-        
-        lastUpdated.value = new Date()
-      } catch (error) {
-        console.error('解析 SSE 数据失败:', error)
-      }
-    },
-    onError(error) {
-      console.error('SSE 连接错误:', error)
-      // 尝试在错误后重新连接
-      setTimeout(initEventSource, 5000)
-    }
-  })
+  // 立即获取一次数据
+  fetchRealtimeStats()
+  
+  // 设置轮询间隔
+  pollingInterval.value = setInterval(fetchRealtimeStats, 5000)
 }
 
 // 生命周期钩子
@@ -307,17 +305,17 @@ onMounted(async () => {
   // 获取历史数据
   await fetchHistoryData()
   
-  // 初始化 SSE
-  initEventSource()
+  // 初始化轮询
+  initPolling()
   
   loading.value = false
 })
 
-// 组件卸载时关闭 SSE 连接
+// 组件卸载时清除轮询
 onUnmounted(() => {
-  if (eventSource.value) {
-    eventSource.value.close()
-    eventSource.value = null
+  if (pollingInterval.value) {
+    clearInterval(pollingInterval.value)
+    pollingInterval.value = null
   }
 })
 </script>

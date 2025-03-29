@@ -174,7 +174,7 @@
           title="管理员角色默认拥有所有菜单权限"
           class="mb-4"
         />
-        
+
         <div class="mb-4 text-right">
           <el-button size="small" type="primary" @click="selectAllMenus">全选</el-button>
           <el-button size="small" @click="unselectAllMenus">取消全选</el-button>
@@ -184,6 +184,7 @@
           ref="menuTreeRef"
           :data="menuTree"
           show-checkbox
+          check-strictly
           node-key="id"
           :default-checked-keys="selectedMenus"
           :props="{

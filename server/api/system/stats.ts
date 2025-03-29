@@ -1,37 +1,20 @@
-import { defineEventHandler, setHeader } from 'h3'
+import { defineEventHandler } from 'h3'
 import os from 'os'
 import { promisify } from 'util'
 import { exec } from 'child_process'
 
 const execAsync = promisify(exec)
 
-export default defineEventHandler(async (event) => {
-  // 设置响应头以支持 SSE
-  setHeader(event, 'Content-Type', 'text/event-stream')
-  setHeader(event, 'Cache-Control', 'no-cache')
-  setHeader(event, 'Connection', 'keep-alive')
-  
-  // 获取响应对象并保持连接
-  const res = event.node.res
-  
-  // 发送系统信息初始数据
-  res.write(`data: ${JSON.stringify(await getSystemStats())}\n\n`)
-  
-  // 每 5 秒发送一次更新
-  const interval = setInterval(async () => {
-    try {
-      const stats = await getSystemStats()
-      res.write(`data: ${JSON.stringify(stats)}\n\n`)
-    } catch (error) {
-      console.error('获取系统状态失败:', error)
-      res.write(`data: ${JSON.stringify({ error: '获取系统状态失败' })}\n\n`)
-    }
-  }, 5000)
-  
-  // 当连接关闭时清除定时器
-  res.on('close', () => {
-    clearInterval(interval)
-  })
+export default defineEventHandler(async () => {
+  try {
+    return await getSystemStats()
+  } catch (error) {
+    console.error('获取系统状态失败:', error)
+    throw createError({
+      statusCode: 500,
+      message: '获取系统状态失败'
+    })
+  }
 })
 
 async function getSystemStats() {
