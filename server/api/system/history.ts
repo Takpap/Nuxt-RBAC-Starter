@@ -49,6 +49,8 @@ function generateMockHistoryData(period: string) {
   const cpuData = []
   const memoryData = []
   const diskData = []
+  const networkRxData = []
+  const networkTxData = []
   
   // 生成每个时间点的数据
   for (let i = 0; i < dataPoints; i++) {
@@ -71,11 +73,22 @@ function generateMockHistoryData(period: string) {
     const baseCpu = 40
     const baseMemory = 65
     const baseDisk = 50
+    const baseNetworkRx = 20
+    const baseNetworkTx = 15
     
-    // 数据随机波动
-    cpuData.push(Math.min(Math.max(baseCpu + Math.sin(i / 2) * 20 + (Math.random() * 10 - 5), 5), 95))
-    memoryData.push(Math.min(Math.max(baseMemory + Math.sin(i / 3) * 10 + (Math.random() * 6 - 3), 40), 90))
-    diskData.push(Math.min(Math.max(baseDisk + (i / dataPoints) * 3 + (Math.random() * 4 - 2), 40), 80))
+    // 生成波动的数据趋势
+    const cpuWave = Math.sin(i / 2) * 20 + (Math.random() * 10 - 5)
+    const memoryWave = Math.sin(i / 3) * 10 + (Math.random() * 6 - 3)
+    const diskWave = (i / dataPoints) * 3 + (Math.random() * 4 - 2)
+    const networkRxWave = Math.sin(i / 1.5) * 15 + (Math.random() * 8 - 4)
+    const networkTxWave = Math.cos(i / 2) * 10 + (Math.random() * 6 - 3)
+    
+    // 数据随机波动，但保持在合理范围内
+    cpuData.push(Math.min(Math.max(baseCpu + cpuWave, 5), 95))
+    memoryData.push(Math.min(Math.max(baseMemory + memoryWave, 40), 90))
+    diskData.push(Math.min(Math.max(baseDisk + diskWave, 40), 80))
+    networkRxData.push(Math.min(Math.max(baseNetworkRx + networkRxWave, 5), 50))
+    networkTxData.push(Math.min(Math.max(baseNetworkTx + networkTxWave, 5), 40))
   }
   
   return {
@@ -85,7 +98,9 @@ function generateMockHistoryData(period: string) {
     datasets: {
       cpu: cpuData.map(value => Math.round(value)),
       memory: memoryData.map(value => Math.round(value)),
-      disk: diskData.map(value => Math.round(value))
+      disk: diskData.map(value => Math.round(value)),
+      networkRx: networkRxData.map(value => Math.round(value)),
+      networkTx: networkTxData.map(value => Math.round(value))
     }
   }
 } 

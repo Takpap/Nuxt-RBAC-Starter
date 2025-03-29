@@ -2,7 +2,7 @@
   <div>
     <div class="flex justify-between mb-4">
       <h3 class="text-base font-medium text-gray-700">活跃用户统计</h3>
-      <el-select v-model="selectedPeriod" size="small" class="w-24">
+      <el-select v-model="selectedPeriod" size="small" class="w-24" style="width: 100px;">
         <el-option label="今日" value="today" />
         <el-option label="本周" value="week" />
         <el-option label="本月" value="month" />

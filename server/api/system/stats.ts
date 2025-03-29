@@ -14,13 +14,15 @@ export default defineEventHandler(async () => {
 })
 
 async function getSystemStats() {
-  const [cpu, mem, osInfo, time, fsSize, currentLoad] = await Promise.all([
+  const [cpu, mem, osInfo, time, fsSize, currentLoad, network, processes] = await Promise.all([
     si.cpu(),
     si.mem(),
     si.osInfo(),
     si.time(),
     si.fsSize(),
     si.currentLoad(),
+    si.networkStats(),
+    si.processes(),
   ])
 
   // 计算内存使用率
@@ -29,6 +31,9 @@ async function getSystemStats() {
   // 计算磁盘使用率（使用主磁盘）
   const mainDisk = fsSize[0]
   const diskUsage = Math.round((mainDisk.used / mainDisk.size) * 100)
+
+  // 获取主网络接口
+  const mainNetwork = network.find(net => net.operstate === 'up') || network[0]
 
   // 返回系统信息
   return {
@@ -59,6 +64,19 @@ async function getSystemStats() {
       used: formatBytes(mainDisk.used),
       free: formatBytes(mainDisk.size - mainDisk.used)
     },
+    network: mainNetwork ? {
+      interface: mainNetwork.iface,
+      rx_bytes: formatBytes(mainNetwork.rx_bytes),
+      tx_bytes: formatBytes(mainNetwork.tx_bytes),
+      rx_sec: formatBytes(mainNetwork.rx_sec) + '/s',
+      tx_sec: formatBytes(mainNetwork.tx_sec) + '/s'
+    } : null,
+    processes: {
+      total: processes.all,
+      running: processes.running,
+      blocked: processes.blocked,
+      sleeping: processes.sleeping
+    },
     uptime: {
       total: time.uptime,
       formatted: formatUptime(time.uptime)
@@ -79,7 +97,13 @@ function formatBytes(bytes: number): string {
 }
 
 function formatUptime(seconds: number): string {
-  const hours = Math.floor(seconds / 3600)
+  const days = Math.floor(seconds / 86400)
+  const hours = Math.floor((seconds % 86400) / 3600)
   const minutes = Math.floor((seconds % 3600) / 60)
+  
+  if (days > 0) {
+    return `${days}天 ${hours}小时 ${minutes}分钟`
+  }
+  
   return `${hours}小时 ${minutes}分钟`
 } 

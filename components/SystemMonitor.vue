@@ -26,20 +26,32 @@
         </div>
       </div>
       
-      <!-- 系统状态图表 -->
-      <div class="bg-white rounded-lg p-4 shadow">
+      <!-- 系统资源图表 -->
+      <div class="bg-white rounded-lg p-4 shadow mb-4 h-80">
+        <h4 class="text-sm font-semibold text-gray-700 mb-3">系统资源使用率</h4>
         <client-only>
           <LineChart
-            v-if="chartData.labels.length > 0"
-            :chart-data="chartData"
+            v-if="resourceChartData.labels.length > 0"
+            :chart-data="resourceChartData"
             :chart-options="chartOptions"
-            class="h-80"
+          />
+        </client-only>
+      </div>
+      
+      <!-- 网络使用图表 -->
+      <div class="bg-white rounded-lg p-4 shadow h-60">
+        <h4 class="text-sm font-semibold text-gray-700 mb-3">网络流量 (Mbps)</h4>
+        <client-only>
+          <LineChart
+            v-if="networkChartData.labels.length > 0"
+            :chart-data="networkChartData"
+            :chart-options="networkChartOptions"
           />
         </client-only>
       </div>
       
       <!-- 实时状态卡片 -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
         <el-card shadow="hover" class="relative overflow-hidden">
           <div class="absolute right-0 top-0 bg-red-50 w-20 h-20 rounded-bl-full flex items-start justify-end pr-2 pt-2">
             <Icon name="i-mdi-cpu-64-bit" class="text-red-500 text-2xl" />
@@ -90,7 +102,59 @@
             <el-progress :percentage="realtimeStats.disk" :color="getProgressColor(realtimeStats.disk)" :stroke-width="8" />
           </div>
         </el-card>
+        
+        <el-card shadow="hover" class="relative overflow-hidden">
+          <div class="absolute right-0 top-0 bg-purple-50 w-20 h-20 rounded-bl-full flex items-start justify-end pr-2 pt-2">
+            <Icon name="i-mdi-swap-horizontal" class="text-purple-500 text-2xl" />
+          </div>
+          <div class="mt-2">
+            <div class="text-sm font-medium text-gray-500 mb-1">网络流量</div>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <div class="text-xs text-gray-500">下载</div>
+                <div class="text-xl font-bold text-gray-800">{{ networkStats.rx_sec }}</div>
+              </div>
+              <div>
+                <div class="text-xs text-gray-500">上传</div>
+                <div class="text-xl font-bold text-gray-800">{{ networkStats.tx_sec }}</div>
+              </div>
+            </div>
+            <div class="flex items-center justify-between mt-2 text-xs text-gray-500">
+              <span>总接收: {{ networkStats.rx_bytes }}</span>
+              <span>总发送: {{ networkStats.tx_bytes }}</span>
+            </div>
+          </div>
+        </el-card>
       </div>
+      
+      <!-- 进程与会话信息 -->
+      <el-card shadow="hover" class="mt-4">
+        <template #header>
+          <div class="flex items-center">
+            <Icon name="i-carbon-task" class="text-indigo-500 mr-2" />
+            <span class="text-sm font-medium">系统进程</span>
+          </div>
+        </template>
+        
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div class="bg-gray-50 rounded-lg p-3">
+            <div class="text-xs text-gray-500 mb-1">总进程数</div>
+            <div class="text-xl font-bold text-gray-800">{{ processStats.total || 'N/A' }}</div>
+          </div>
+          <div class="bg-gray-50 rounded-lg p-3">
+            <div class="text-xs text-gray-500 mb-1">运行中</div>
+            <div class="text-xl font-bold text-green-600">{{ processStats.running || 'N/A' }}</div>
+          </div>
+          <div class="bg-gray-50 rounded-lg p-3">
+            <div class="text-xs text-gray-500 mb-1">阻塞</div>
+            <div class="text-xl font-bold text-orange-500">{{ processStats.blocked || 'N/A' }}</div>
+          </div>
+          <div class="bg-gray-50 rounded-lg p-3">
+            <div class="text-xs text-gray-500 mb-1">休眠</div>
+            <div class="text-xl font-bold text-blue-500">{{ processStats.sleeping || 'N/A' }}</div>
+          </div>
+        </div>
+      </el-card>
     </div>
   </div>
 </template>
@@ -110,6 +174,23 @@ const realtimeStats = reactive({
   disk: 0
 })
 
+// 网络统计
+const networkStats = reactive({
+  rx_bytes: '0 B',
+  tx_bytes: '0 B',
+  rx_sec: '0 B/s',
+  tx_sec: '0 B/s',
+  interface: ''
+})
+
+// 进程统计
+const processStats = reactive({
+  total: 0,
+  running: 0,
+  blocked: 0,
+  sleeping: 0
+})
+
 // 上一次的读数用于计算趋势
 const previousStats = reactive({
   cpu: 0,
@@ -123,7 +204,9 @@ const historyData = reactive({
   datasets: {
     cpu: [] as number[],
     memory: [] as number[],
-    disk: [] as number[]
+    disk: [] as number[],
+    networkRx: [] as number[],
+    networkTx: [] as number[]
   }
 })
 
@@ -141,8 +224,8 @@ const formatTime = computed(() => {
   })
 })
 
-// 图表数据
-const chartData = computed(() => {
+// 系统资源图表数据
+const resourceChartData = computed(() => {
   return {
     labels: historyData.labels,
     datasets: [
@@ -169,6 +252,33 @@ const chartData = computed(() => {
         data: historyData.datasets.disk,
         borderColor: '#34d399',
         backgroundColor: 'rgba(52, 211, 153, 0.1)',
+        borderWidth: 2,
+        tension: 0.3,
+        fill: true
+      }
+    ]
+  }
+})
+
+// 网络图表数据
+const networkChartData = computed(() => {
+  return {
+    labels: historyData.labels,
+    datasets: [
+      {
+        label: '下载',
+        data: historyData.datasets.networkRx,
+        borderColor: '#8b5cf6',
+        backgroundColor: 'rgba(139, 92, 246, 0.1)',
+        borderWidth: 2,
+        tension: 0.3,
+        fill: true
+      },
+      {
+        label: '上传',
+        data: historyData.datasets.networkTx,
+        borderColor: '#ec4899',
+        backgroundColor: 'rgba(236, 72, 153, 0.1)',
         borderWidth: 2,
         tension: 0.3,
         fill: true
@@ -207,6 +317,35 @@ const chartOptions = reactive({
   }
 })
 
+// 网络图表配置
+const networkChartOptions = reactive({
+  responsive: true,
+  maintainAspectRatio: false,
+  scales: {
+    y: {
+      beginAtZero: true,
+      ticks: {
+        callback: (value: number) => value + ' Mbps'
+      }
+    }
+  },
+  plugins: {
+    legend: {
+      position: 'top' as const,
+      labels: {
+        boxWidth: 12,
+        usePointStyle: true,
+        pointStyle: 'circle'
+      }
+    },
+    tooltip: {
+      callbacks: {
+        label: (context: any) => `${context.dataset.label}: ${context.parsed.y} Mbps`
+      }
+    }
+  }
+})
+
 // 获取趋势图标和颜色
 function getTrendIcon(value: number) {
   if (value > 0) return 'i-mdi-arrow-up-thin'
@@ -238,6 +377,12 @@ async function fetchHistoryData() {
       historyData.datasets.cpu = data.value.datasets.cpu
       historyData.datasets.memory = data.value.datasets.memory
       historyData.datasets.disk = data.value.datasets.disk
+      
+      // 新增网络数据
+      if (data.value.datasets.networkRx && data.value.datasets.networkTx) {
+        historyData.datasets.networkRx = data.value.datasets.networkRx
+        historyData.datasets.networkTx = data.value.datasets.networkTx
+      }
     }
   } catch (error) {
     console.error('获取历史数据失败:', error)
@@ -261,6 +406,23 @@ async function fetchRealtimeStats() {
       realtimeStats.cpu = data.value.cpu.usage
       realtimeStats.memory = data.value.memory.usage
       realtimeStats.disk = data.value.disk.usage
+      
+      // 更新网络统计
+      if (data.value.network) {
+        networkStats.rx_bytes = data.value.network.rx_bytes
+        networkStats.tx_bytes = data.value.network.tx_bytes
+        networkStats.rx_sec = data.value.network.rx_sec
+        networkStats.tx_sec = data.value.network.tx_sec
+        networkStats.interface = data.value.network.interface
+      }
+      
+      // 更新进程统计
+      if (data.value.processes) {
+        processStats.total = data.value.processes.total
+        processStats.running = data.value.processes.running
+        processStats.blocked = data.value.processes.blocked
+        processStats.sleeping = data.value.processes.sleeping
+      }
       
       lastUpdated.value = new Date()
     }

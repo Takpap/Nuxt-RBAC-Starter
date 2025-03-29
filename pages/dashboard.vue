@@ -1,101 +1,90 @@
 <template>
   <div>
-    <el-row :gutter="20">
-      <el-col :span="24">
-        <el-card class="mb-6 shadow-sm hover:shadow-md transition-shadow duration-300">
-          <template #header>
-            <div class="flex items-center justify-between">
-              <h3 class="text-lg font-semibold text-gray-700 flex items-center">
-                <Icon name="i-mdi-view-dashboard" class="mr-2 text-blue-500 text-xl" />
-                系统概览
-              </h3>
-              <el-button type="primary" size="small" text class="hover:bg-blue-50 px-3 py-1 rounded-md" @click="refreshData">
-                <Icon name="i-tabler-refresh" class="mr-1" />
-                刷新
+    <!-- 顶部统计卡片组 -->
+    <div class="mb-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <el-card class="shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden border-t-4 border-blue-500">
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="text-sm text-gray-500 font-medium mb-1">用户总数</div>
+            <div class="text-3xl font-bold text-gray-800">{{ stats.users }}</div>
+            <div class="mt-1 text-xs text-gray-500">较上周 <span class="text-green-500 font-medium">+{{ userGrowth }}%</span></div>
+          </div>
+          <div class="bg-blue-50 p-3 rounded-full">
+            <Icon name="i-ph-users-duotone" class="text-blue-500 text-4xl" />
+          </div>
+        </div>
+      </el-card>
+            
+      <el-card class="shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden border-t-4 border-green-500">
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="text-sm text-gray-500 font-medium mb-1">角色总数</div>
+            <div class="text-3xl font-bold text-gray-800">{{ stats.roles }}</div>
+            <div class="mt-1 text-xs text-gray-500">本月新增 <span class="text-green-500 font-medium">{{ newRolesCount }}</span></div>
+          </div>
+          <div class="bg-green-50 p-3 rounded-full">
+            <Icon name="i-carbon-user-role" class="text-green-500 text-4xl" />
+          </div>
+        </div>
+      </el-card>
+            
+      <el-card class="shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden border-t-4 border-purple-500">
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="text-sm text-gray-500 font-medium mb-1">权限总数</div>
+            <div class="text-3xl font-bold text-gray-800">{{ stats.permissions }}</div>
+            <div class="mt-1 text-xs text-gray-500">活跃使用 <span class="text-blue-500 font-medium">{{ activePermissionsPct }}%</span></div>
+          </div>
+          <div class="bg-purple-50 p-3 rounded-full">
+            <Icon name="i-solar-key-bold-duotone" class="text-purple-500 text-4xl" />
+          </div>
+        </div>
+      </el-card>
+            
+      <el-card class="shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden border-t-4 border-orange-500">
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="text-sm text-gray-500 font-medium mb-1">活跃会话</div>
+            <div class="text-3xl font-bold text-gray-800">{{ stats.sessions }}</div>
+            <div class="mt-1 text-xs text-gray-500">今日登录 <span class="text-orange-500 font-medium">{{ todaysLoginsCount }}</span></div>
+          </div>
+          <div class="bg-orange-50 p-3 rounded-full">
+            <Icon name="i-clarity-clock-solid" class="text-orange-500 text-4xl" />
+          </div>
+        </div>
+      </el-card>
+    </div>
+    
+    <!-- 系统监控图表区域 -->
+    <el-card class="mb-6 shadow-sm hover:shadow-md transition-shadow duration-300">
+      <template #header>
+        <div class="flex items-center justify-between">
+          <h3 class="text-lg font-semibold text-gray-700 flex items-center">
+            <Icon name="i-mdi-chart-line" class="mr-2 text-indigo-500 text-xl" />
+            系统监控
+          </h3>
+          <el-button-group>
+            <el-tooltip content="展开全屏查看" placement="top">
+              <el-button type="info" size="small" text class="hover:bg-gray-50 px-3 py-1 rounded-md">
+                <Icon name="i-mdi-arrow-expand-all" />
               </el-button>
-            </div>
-          </template>
-          
-          <el-row :gutter="20">
-            <el-col :xs="24" :sm="12" :md="8" :lg="6">
-              <div class="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-lg mb-4 shadow-sm hover:shadow transition-all duration-300 transform hover:-translate-y-1 border-l-4 border-blue-500">
-                <div class="flex items-center">
-                  <Icon name="i-ph-users-duotone" class="text-blue-500 text-3xl mr-3" />
-                  <div>
-                    <div class="text-sm text-gray-500 font-medium">用户总数</div>
-                    <div class="text-2xl font-bold text-gray-800">{{ stats.users }}</div>
-                  </div>
-                </div>
-              </div>
-            </el-col>
-            
-            <el-col :xs="24" :sm="12" :md="8" :lg="6">
-              <div class="bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-lg mb-4 shadow-sm hover:shadow transition-all duration-300 transform hover:-translate-y-1 border-l-4 border-green-500">
-                <div class="flex items-center">
-                  <Icon name="i-carbon-user-role" class="text-green-500 text-3xl mr-3" />
-                  <div>
-                    <div class="text-sm text-gray-500 font-medium">角色总数</div>
-                    <div class="text-2xl font-bold text-gray-800">{{ stats.roles }}</div>
-                  </div>
-                </div>
-              </div>
-            </el-col>
-            
-            <el-col :xs="24" :sm="12" :md="8" :lg="6">
-              <div class="bg-gradient-to-r from-purple-50 to-purple-100 p-4 rounded-lg mb-4 shadow-sm hover:shadow transition-all duration-300 transform hover:-translate-y-1 border-l-4 border-purple-500">
-                <div class="flex items-center">
-                  <Icon name="i-solar-key-bold-duotone" class="text-purple-500 text-3xl mr-3" />
-                  <div>
-                    <div class="text-sm text-gray-500 font-medium">权限总数</div>
-                    <div class="text-2xl font-bold text-gray-800">{{ stats.permissions }}</div>
-                  </div>
-                </div>
-              </div>
-            </el-col>
-            
-            <el-col :xs="24" :sm="12" :md="8" :lg="6">
-              <div class="bg-gradient-to-r from-orange-50 to-orange-100 p-4 rounded-lg mb-4 shadow-sm hover:shadow transition-all duration-300 transform hover:-translate-y-1 border-l-4 border-orange-500">
-                <div class="flex items-center">
-                  <Icon name="i-clarity-clock-solid" class="text-orange-500 text-3xl mr-3" />
-                  <div>
-                    <div class="text-sm text-gray-500 font-medium">活跃会话</div>
-                    <div class="text-2xl font-bold text-gray-800">{{ stats.sessions }}</div>
-                  </div>
-                </div>
-              </div>
-            </el-col>
-          </el-row>
-        </el-card>
-      </el-col>
-    </el-row>
-    
-    <!-- 新增: 系统监控图表区域 -->
-    <el-row :gutter="20" class="mb-6">
-      <el-col :span="24">
-        <el-card class="shadow-sm hover:shadow-md transition-shadow duration-300">
-          <template #header>
-            <div class="flex items-center justify-between">
-              <h3 class="text-lg font-semibold text-gray-700 flex items-center">
-                <Icon name="i-mdi-chart-line" class="mr-2 text-indigo-500 text-xl" />
-                系统监控
-              </h3>
-              <el-button-group>
-                <el-tooltip content="展开全屏查看" placement="top">
-                  <el-button type="info" size="small" text class="hover:bg-gray-50 px-3 py-1 rounded-md">
-                    <Icon name="i-mdi-arrow-expand-all" />
-                  </el-button>
-                </el-tooltip>
-              </el-button-group>
-            </div>
-          </template>
-          
-          <SystemMonitor />
-        </el-card>
-      </el-col>
-    </el-row>
+            </el-tooltip>
+            <el-tooltip content="刷新数据" placement="top">
+              <el-button type="primary" size="small" text class="hover:bg-blue-50 px-3 py-1 rounded-md" @click="refreshData">
+                <Icon name="i-tabler-refresh" />
+              </el-button>
+            </el-tooltip>
+          </el-button-group>
+        </div>
+      </template>
+      
+      <SystemMonitor />
+    </el-card>
     
     <el-row :gutter="20">
+      <!-- 左侧面板 -->
       <el-col :xs="24" :lg="16">
+        <!-- 最近活动 -->
         <el-card class="mb-6 shadow-sm hover:shadow-md transition-shadow duration-300">
           <template #header>
             <div class="flex items-center justify-between">
@@ -144,9 +133,49 @@
             </el-timeline>
           </div>
         </el-card>
+        
+        <!-- 最新用户 -->
+        <el-card class="mb-6 shadow-sm hover:shadow-md transition-shadow duration-300">
+          <template #header>
+            <div class="flex items-center justify-between">
+              <h3 class="text-lg font-semibold text-gray-700 flex items-center">
+                <Icon name="i-ph-user-circle-duotone" class="mr-2 text-blue-500 text-xl" />
+                最新用户
+              </h3>
+              <el-button type="primary" size="small" text class="hover:bg-blue-50 px-3 py-1 rounded-md" @click="navigateTo('/users')">
+                <Icon name="i-lucide-users" class="mr-1" />
+                管理用户
+              </el-button>
+            </div>
+          </template>
+          
+          <el-table :data="recentUsers" stripe style="width: 100%" v-loading="loadingUsers">
+            <el-table-column prop="username" label="用户名" min-width="120">
+              <template #default="scope">
+                <div class="flex items-center">
+                  <el-avatar :size="24" class="mr-2">{{ scope.row.username.charAt(0).toUpperCase() }}</el-avatar>
+                  <span>{{ scope.row.username }}</span>
+                </div>
+              </template>
+            </el-table-column>
+            <el-table-column prop="email" label="邮箱" min-width="180" />
+            <el-table-column prop="role.name" label="角色" width="120">
+              <template #default="scope">
+                <el-tag size="small" type="success">{{ scope.row.role?.name || '未分配' }}</el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column prop="createdAt" label="创建时间" width="180">
+              <template #default="scope">
+                {{ new Date(scope.row.createdAt).toLocaleString() }}
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-card>
       </el-col>
       
+      <!-- 右侧面板 -->
       <el-col :xs="24" :lg="8">
+        <!-- 系统信息 -->
         <el-card class="shadow-sm hover:shadow-md transition-shadow duration-300 mb-6">
           <template #header>
             <div class="flex items-center justify-between">
@@ -185,40 +214,17 @@
                 <el-tag size="small" type="info">{{ systemInfo.version }}</el-tag>
               </div>
             </el-descriptions-item>
+            <el-descriptions-item label="运行时间" label-class-name="bg-gray-50 font-medium">
+              <div class="flex items-center">
+                <Icon name="i-mdi-timer-outline" class="mr-2 text-gray-600" />
+                <span>{{ systemUptime }}</span>
+              </div>
+            </el-descriptions-item>
           </el-descriptions>
-          
-          <div class="mt-4 p-4 bg-blue-50 rounded-lg">
-            <h4 class="text-sm font-semibold text-gray-700 mb-2 flex items-center">
-              <Icon name="i-ph-chart-line-duotone" class="mr-1 text-blue-500" />
-              系统状态
-            </h4>
-            <div class="space-y-2">
-              <div>
-                <div class="flex justify-between text-xs text-gray-500 mb-1">
-                  <span>CPU使用率</span>
-                  <span>{{ systemStats.cpu }}%</span>
-                </div>
-                <el-progress :percentage="systemStats.cpu" :stroke-width="8" status="success" />
-              </div>
-              <div>
-                <div class="flex justify-between text-xs text-gray-500 mb-1">
-                  <span>内存使用率</span>
-                  <span>{{ systemStats.memory }}%</span>
-                </div>
-                <el-progress :percentage="systemStats.memory" :stroke-width="8" status="warning" />
-              </div>
-              <div>
-                <div class="flex justify-between text-xs text-gray-500 mb-1">
-                  <span>磁盘使用率</span>
-                  <span>{{ systemStats.disk }}%</span>
-                </div>
-                <el-progress :percentage="systemStats.disk" :stroke-width="8" />
-              </div>
-            </div>
-          </div>
         </el-card>
         
-        <el-card class="shadow-sm hover:shadow-md transition-shadow duration-300">
+        <!-- 用户分布 -->
+        <el-card class="shadow-sm hover:shadow-md transition-shadow duration-300 mb-6">
           <template #header>
             <div class="flex items-center justify-between">
               <h3 class="text-lg font-semibold text-gray-700 flex items-center">
@@ -245,13 +251,20 @@ definePageMeta({
 
 const { user } = useAuth()
 
-// 模拟统计数据
+// 统计数据
 const stats = reactive({
   users: 0,
   roles: 0,
   permissions: 0,
   sessions: 0
 })
+
+// 额外的统计指标
+const userGrowth = ref(7.5)
+const newRolesCount = ref(3)
+const activePermissionsPct = ref(68)
+const todaysLoginsCount = ref(18)
+const systemUptime = ref('')
 
 // 活动数据接口
 interface Activity {
@@ -267,13 +280,30 @@ interface Activity {
   }
 }
 
-const activities = ref<Activity[]>([])
+// 用户数据接口
+interface User {
+  id: number
+  username: string
+  email: string
+  name?: string | null
+  createdAt: string | Date
+  isActive: boolean
+  role?: {
+    id: number
+    name: string
+  }
+}
 
-// 系统状态数据
-const systemStats = reactive({
-  cpu: 42,
-  memory: 68,
-  disk: 53
+const activities = ref<Activity[]>([])
+const recentUsers = ref<User[]>([])
+const loadingUsers = ref(false)
+
+
+// 模拟系统信息
+const systemInfo = reactive({
+  os: 'Linux',
+  time: new Date().toLocaleString(),
+  version: 'v1.0.0'
 })
 
 // 获取活动类型对应的图标
@@ -302,6 +332,13 @@ const getActivityType = (action: string): 'success' | 'warning' | 'info' | 'prim
   }
 }
 
+// 获取进度条颜色
+const getProgressColor = (value: number) => {
+  if (value >= 80) return '#ef4444'
+  if (value >= 60) return '#f97316'
+  return '#10b981'
+}
+
 // 格式化日期函数
 const formatDate = (dateString: string) => {
   const date = new Date(dateString)
@@ -325,13 +362,6 @@ const formatDate = (dateString: string) => {
            ' ' + date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
   }
 }
-
-// 模拟系统信息
-const systemInfo = reactive({
-  os: 'Linux',
-  time: new Date().toLocaleString(),
-  version: 'v1.0.0'
-})
 
 // 获取统计数据
 const fetchStats = async () => {
@@ -368,6 +398,29 @@ const fetchRecentActivities = async () => {
   }
 }
 
+// 获取最新用户
+const fetchRecentUsers = async () => {
+  try {
+    loadingUsers.value = true
+    const { data } = await useFetch('/api/users', {
+      query: { 
+        limit: 5,
+        sort: 'createdAt:desc'
+      }
+    })
+    
+    if (data.value) {
+      // 确保正确访问数据结构，并进行类型转换
+      const userData = data.value.users || (Array.isArray(data.value) ? data.value : [])
+      recentUsers.value = userData as unknown as User[]
+    }
+  } catch (err) {
+    console.error('获取最新用户失败', err)
+  } finally {
+    loadingUsers.value = false
+  }
+}
+
 // 获取系统信息
 const fetchSystemInfo = async () => {
   try {
@@ -377,6 +430,12 @@ const fetchSystemInfo = async () => {
       systemInfo.os = data.value.os.type + ' ' + data.value.os.release
       systemInfo.version = data.value.version
       systemInfo.time = new Date(data.value.time).toLocaleString()
+      
+      // 获取系统运行时间
+      const systemData = data.value as any // 使用 any 临时解决类型问题
+      if (systemData.uptime) {
+        systemUptime.value = systemData.uptime.formatted || '未知'
+      }
     }
   } catch (err) {
     console.error('获取系统信息失败', err)
@@ -388,6 +447,7 @@ const refreshData = async () => {
   await Promise.all([
     fetchStats(),
     fetchRecentActivities(),
+    fetchRecentUsers(),
     fetchSystemInfo()
   ])
   
