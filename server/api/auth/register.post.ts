@@ -63,7 +63,7 @@ export default defineEventHandler(async (event) => {
     });
     
     // Create a session (log in the user)
-    const token = await createSession(user.id);
+    const token = await createSession(user.id, user.roleId);
     
     // Return user info and token
     return {

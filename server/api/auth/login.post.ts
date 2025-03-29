@@ -59,7 +59,7 @@ export default defineEventHandler(async (event) => {
     }
     
     // Create a new session
-    const token = await createSession(user.id);
+    const token = await createSession(user.id, user.roleId);
     
     // Extract permissions for client-side use
     const permissions = user.role.permissions.map((rp: RolePermissionWithPermission) => ({

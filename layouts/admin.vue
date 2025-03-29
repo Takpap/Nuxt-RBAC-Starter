@@ -130,12 +130,7 @@ watch(isCollapse, (val) => {
 // 获取用户菜单
 const fetchUserMenus = async () => {
   try {
-    const { data } = await useFetch('/api/menus', {
-      params: {
-        role: user.value?.roleId
-      },
-      headers: getAuthHeaders()
-    })
+    const { data } = await useFetch('/api/menus')
     
     if (data.value && data.value.menus) {
       userMenus.value = data.value.menus

@@ -4,7 +4,7 @@ import prisma from '../../utils/prisma';
 // 获取当前认证用户的信息
 export default defineEventHandler(async (event) => {
   // 从事件上下文中获取认证用户ID
-  const userId = event.context.auth?.userId;
+  const { userId } = event.context.auth;
 
   if (!userId) {
     throw createError({

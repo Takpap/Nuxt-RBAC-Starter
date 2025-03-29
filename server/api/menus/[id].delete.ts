@@ -5,26 +5,10 @@ import { H3Event } from 'h3'
 
 export default defineEventHandler(async (event: H3Event) => {
   try {
-    // 验证权限
-    const token = getRequestHeader(event, 'authorization')?.split(' ')[1]
-    if (!token) {
-      throw createError({
-        statusCode: 401,
-        message: '未授权访问'
-      })
-    }
-
-    const decoded = await verifyToken(token)
-    if (!decoded) {
-      throw createError({
-        statusCode: 401,
-        message: '无效的认证token'
-      })
-    }
-
+    const { userId } = event.context.auth
     // 获取用户信息
     const user = await prisma.user.findUnique({
-      where: { id: decoded.userId },
+      where: { id: userId },
       include: {
         role: {
           include: {

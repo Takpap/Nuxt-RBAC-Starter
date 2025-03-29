@@ -22,26 +22,11 @@ function buildMenuTree(menus: any[], parentId: number | null = null) {
 
 export default defineEventHandler(async (event: H3Event) => {
   try {
-    // 验证权限
-    const token = getRequestHeader(event, 'authorization')?.split(' ')[1]
-    if (!token) {
-      throw createError({
-        statusCode: 401,
-        message: '未授权访问'
-      })
-    }
-
-    const decoded = await verifyToken(token)
-    if (!decoded) {
-      throw createError({
-        statusCode: 401,
-        message: '无效的认证token'
-      })
-    }
+    const { userId, roleId } = event.context.auth;
 
     // 获取用户信息
     const user = await prisma.user.findUnique({
-      where: { id: decoded.userId },
+      where: { id: userId },
       include: {
         role: {
           include: {
@@ -74,43 +59,27 @@ export default defineEventHandler(async (event: H3Event) => {
       })
     }
 
-    // 判断是否需要按角色获取菜单
-    const { role } = getQuery(event)
-    
-    let menus
-    if (role) {
-      // 按角色ID获取菜单
-      const roleId = parseInt(role as string)
-      const roleWithMenus = await prisma.role.findUnique({
-        where: { id: roleId },
-        include: {
-          menus: {
-            include: {
-              menu: true
-            }
+    // 按角色ID获取菜单
+    const roleWithMenus = await prisma.role.findUnique({
+      where: { id: roleId },
+      include: {
+        menus: {
+          include: {
+            menu: true
           }
         }
-      })
-      
-      if (!roleWithMenus) {
-        throw createError({
-          statusCode: 404,
-          message: '角色不存在'
-        })
       }
-      
-      // 提取所有菜单
-      const menuList = roleWithMenus.menus.map(rm => rm.menu)
-      menus = buildMenuTree(menuList)
-    } else {
-      // 获取所有菜单
-      const allMenus = await prisma.menu.findMany({
-        orderBy: { sort: 'asc' }
+    })
+    
+    if (!roleWithMenus) {
+      throw createError({
+        statusCode: 404,
+        message: '角色不存在'
       })
-      
-      // 构建菜单树
-      menus = buildMenuTree(allMenus)
     }
+    // 提取所有菜单
+    const menuList = roleWithMenus.menus.map(rm => rm.menu)
+    const menus = buildMenuTree(menuList)
 
     return { menus }
   } catch (error: any) {

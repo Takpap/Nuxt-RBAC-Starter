@@ -14,8 +14,8 @@ export async function comparePasswords(password: string, hashedPassword: string)
   return bcrypt.compare(password, hashedPassword);
 }
 
-export function generateToken(userId: number): string {
-  return jwt.sign({ userId }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+export function generateToken(userId: number, roleId: number): string {
+  return jwt.sign({ userId, roleId }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
 }
 
 export function verifyToken(token: string): { userId: number } | null {
@@ -26,13 +26,13 @@ export function verifyToken(token: string): { userId: number } | null {
   }
 }
 
-export async function createSession(userId: number): Promise<string> {
+export async function createSession(userId: number, roleId: number): Promise<string> {
   // Calculate expiration date (24 hours from now)
   const expiresAt = new Date();
   expiresAt.setHours(expiresAt.getHours() + 24);
   
   // Generate JWT token
-  const token = generateToken(userId);
+  const token = generateToken(userId, roleId);
   
   // Store session in database
   await prisma.session.create({
@@ -46,7 +46,7 @@ export async function createSession(userId: number): Promise<string> {
   return token;
 }
 
-export async function validateSession(token: string): Promise<{ userId: number } | null> {
+export async function validateSession(token: string): Promise<{ userId: number, roleId: number } | null> {
   try {
     // First verify the token structure
     const decoded = verifyToken(token);
@@ -63,7 +63,7 @@ export async function validateSession(token: string): Promise<{ userId: number }
       return null;
     }
     
-    return { userId: session.userId };
+    return { userId: session.userId, roleId: session.user.roleId };
   } catch (error) {
     return null;
   }

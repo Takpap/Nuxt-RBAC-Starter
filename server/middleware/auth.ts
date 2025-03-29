@@ -97,7 +97,7 @@ export default defineEventHandler(async (event: H3Event) => {
   }
   
   // Store user ID in event context for route handlers
-  event.context.auth = { userId: session.userId };
+  event.context.auth = { userId: session.userId, roleId: session.roleId };
   
   // Check for resource-specific permissions if this is an API request
   if (url.startsWith('/api/') && !url.startsWith('/api/auth/')) {
